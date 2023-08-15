@@ -11,15 +11,25 @@ coils = makeHorizontalCoils;
 C1 = coils(1).Coil;
 C2 = coils(2).Coil;
 C3 = coils(3).Coil;
-x1=.068;
+x1=.067;
 x2=.1015;
+
+i1 = 1;
+i2 = 2;
+i3 = 3;
+s1 = 'Coil 3'
+s2 = 'Coil 4'
+s3 = 'Coil 3'
 
 C1 = coils(2).Coil;
 C2 = coils(3).Coil;
 C3 = coils(4).Coil;
-x1=.103;
+x1=.101;
 x2=.132;
 
+i1 = 2;
+i2 = 3;
+i3 = 4;
 
 xvec = linspace(x1,x2,100);
 
@@ -103,6 +113,14 @@ end
 
 figure(6);
 clf
-plot(xvec,imat(1,:)); hold on
-plot(xvec,imat(2,:)); hold on
-plot(xvec,imat(3,:)); hold on
+
+co=get(gca,'colororder')
+plot(xvec,imat(1,:),'color',co(i1,:)); hold on
+plot(xvec,imat(2,:),'color',co(i2,:)); hold on
+plot(xvec,imat(3,:),'color',co(i3,:)); hold on
+xlabel('position (mm)')
+xlim([x1 x2]);
+ylabel('current (A)')
+
+legend({s1,s2,s3})
+
