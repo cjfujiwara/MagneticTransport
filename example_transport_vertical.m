@@ -12,7 +12,7 @@ zc = coils(4).zbot+coils(4).Height/2;
 zd = coils(5).zbot+coils(5).Height/2;
 
 %% Zone 1 Solution
-zvec = linspace(za,zb,100);
+zvec = linspace(za,zb,300);
 
 c1 = coils(1).Coil;
 c2 = coils(2).Coil;
@@ -114,10 +114,10 @@ for jj=1:length(zvec)
     Bz(jj,:) = [Bz1 Bz2 Bz3 Bz4];
     Gz(jj,:) = [Gz1 Gz2 Gz3 Gz4];
 
-    curr1 = i1(1) + (i2(1)-i1(1))/(z2-z1)*(z0-z1);
-    curr2 = i1(2) + (i2(2)-i1(2))/(z2-z1)*(z0-z1);
-    curr3 = i1(3) + (i2(3)-i1(3))/(z2-z1)*(z0-z1);
-    curr4 = i1(4) + (i2(4)-i1(4))/(z2-z1)*(z0-z1);
+    curr1 = i1(1) + (i2(1)-i1(1))/(zb-za)*(z0-za);
+    curr2 = i1(2) + (i2(2)-i1(2))/(zb-za)*(z0-za);
+    curr3 = i1(3) + (i2(3)-i1(3))/(zb-za)*(z0-za);
+    curr4 = i1(4) + (i2(4)-i1(4))/(zb-za)*(z0-za);
 
     curr_lin(jj,:) = [curr1 curr2 curr3 curr4];
 
@@ -162,7 +162,7 @@ for kk=1:length(zvec)
     A2(kk,kk+length(zvec)) = Gz(kk,2);
     A2(kk,kk+2*length(zvec)) = Gz(kk,3);
     A2(kk,kk+3*length(zvec)) = Gz(kk,4);
-    B1(kk) = 100;
+    B2(kk) = 100;
 end
 
 % Boundary Condition Constrain
@@ -179,8 +179,8 @@ Abc(7,3*length(zvec)) = 1;Bbc(7) = i2(3);
 Abc(8,4*length(zvec)) = 1;Bbc(8) = i2(4);                
 
 
-A = [A1;A2];
-B = [B1; B2];
+A = [A1;A2;Abc];
+B = [B1;B2;Bbc];
 x0 = curr_lin_all;
 
 func = @(curr) sum(diff(curr(n1)).^2) + ...
@@ -188,6 +188,23 @@ func = @(curr) sum(diff(curr(n1)).^2) + ...
     sum(diff(curr(n3)).^2) + ...
     sum(diff(curr(n4)).^2);
 
-x = fmincon(func,x0,[],[],A,B)
-% diff(curr(1:n1)).^2+diff(curr(1:n1)).^2
+x = fmincon(func,x0,[],[],A,B);
+
+Gfind = x(n1).*Gz(:,1)+x(n2).*Gz(:,2)+x(n3).*Gz(:,3)+x(n4).*Gz(:,4);
+Bfind = x(n1).*Bz(:,1)+x(n2).*Bz(:,2)+x(n3).*Bz(:,3)+x(n4).*Bz(:,4);
+%%
+figure(10);
+clf
+
+subplot(121);
+plot(zvec,x(n1));
+hold on
+plot(zvec,x(n2));
+plot(zvec,x(n3));
+plot(zvec,x(n4));
+
+subplot(122);
+plot(zvec,Gfind); 
+hold on
+plot(zvec,Bfind);
 
