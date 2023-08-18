@@ -45,7 +45,7 @@ coils = makeVerticalCoils;
 % Find center position of each coil
 z_centers=zeros(6,1);
 for ii=1:length(coils)
-    z_centers(ii) = coils(ii).zbot+coils(2).Height/2;
+    z_centers(ii) = coils(ii).zbot+coils(ii).Height/2;
 end
 
 % Idenfity High Symmetry Points
