@@ -1,18 +1,97 @@
+%% Construct the coils
+
 % Solve vertical transport in the "easy" regime
 coils = makeVerticalCoils;
 
-% Find center points of inner coils
-z=[];
-for kk=2:(length(coils)-1)
-    z(end+1) = coils(kk).zbot+coils(2).Height/2;
-end
-za = coils(2).zbot+coils(2).Height/2;
-zb = coils(3).zbot+coils(3).Height/2;
-zc = coils(4).zbot+coils(4).Height/2;
-zd = coils(5).zbot+coils(5).Height/2;
+%% Establish Symmetry Points
+% During vertical transport there are 6 points of high symmetry. 
 
-%% Zone 1 Solution
-zvec = linspace(za,zb,300);
+% The first class of high symmetry points are at the beginning and end 
+% of transport where the trap is formed at the center of top two (15 + 16) 
+% or bottom two coils (12a + 12b). This is important as these are starting
+% stage from horizontal transport and the magnetic evaporation. Although
+% the magnetic evaporation can occur at an offset position to avoid hitting
+% the sapphire window
+%
+% The second class of high points are at the centers of each of the
+% interior coils (12b, 13, 14, 15). These points are of particular interest
+% because at those heights, that particular coils adds no gradient.  So it
+% is simple to have its neighboring coils provide the requisite gradient.
+% For example, at the height of Coil 13, only Coil 12b and Coil 14 should
+% be providing a magnetic gradient.  These high symmetry points create the
+% natural "cell" for calculating the transport.
+%
+% Because the problem is over contstrained, we shall constrain the problem
+% by minizing the current curvature which makes the current regulation the
+% smoothest.
+
+
+% Find center position of each coil
+z_centers=zeros(6,1);
+for ii=1:length(coils)
+    z_centers(ii) = coils(ii).zbot+coils(2).Height/2;
+end
+
+% Idenfity High Symmetry Points
+z_init = 0;
+za = z_centers(2);
+zb = z_centers(3);
+zc = z_centers(4);
+zd = z_centers(5);
+z_final = z_centers(5)+z_centers(6);
+%% Initialize data vectors
+N = 5e3; % Number of positions to evalulate
+dL  = 1e-4; % Distance separation for calculating the gradient
+Z = linspace(z_init,z_final,N);
+
+B0 = 0;     % Target field in Gauss
+G0 = 0;     % Target gradient in Gauss/cm
+
+
+B = zeros(N,6);
+G = zeros(N,6);
+%% Calculate the field at all points in space.
+
+for kk=1:length(coils)
+    C = coils(kk).Coil;    
+    [~,~,Bz]=fieldCoil_3D(0,0,Z,C);
+    [~,~,Bzp]=fieldCoil_3D(0,0,Z+dL,C);
+    [~,~,Bzn]=fieldCoil_3D(0,0,Z-dL,C);
+    Gz = (Bzp-Bzn)/(2*dL);
+    B(:,kk) = Bz;
+    G(:,kk) = Gz;
+end
+
+% Convert to Gauss and Gauss/cm
+B = B*1e4;
+G = G*1e2;
+
+%% Plot Field And Gradient
+figure(1);
+clf
+subplot(211)
+for kk=1:length(coils)
+    plot(Z*1e3,B(:,kk),'-','linewidth',1);
+    hold on
+end
+xlabel('position (mm)')
+ylabel('field @ 1A (G)')
+legend({'12a','12b','13','14','15','16'})
+
+subplot(212)
+for kk=1:length(coils)
+    plot(Z*1e3,G(:,kk),'-','linewidth',1);
+    hold on
+end
+xlabel('position (mm)')
+ylabel('gradient @ 1A (G/cm)')
+legend({'12a','12b','13','14','15','16'})
+
+%% Solve Each Zone NEW
+
+
+%% Zone 1 Solution OLD
+zvec = linspace(za,zb,100);
 
 c1 = coils(1).Coil;
 c2 = coils(2).Coil;
@@ -110,7 +189,6 @@ for jj=1:length(zvec)
     Gz2 = (Bz2p-Bz2n)/(2*dL);Gz2 = Gz2*1e2;
     Gz3 = (Bz3p-Bz3n)/(2*dL);Gz3 = Gz3*1e2;
     Gz4 = (Bz4p-Bz4n)/(2*dL);Gz4 = Gz4*1e2;
-
     Bz(jj,:) = [Bz1 Bz2 Bz3 Bz4];
     Gz(jj,:) = [Gz1 Gz2 Gz3 Gz4];
 
@@ -119,13 +197,8 @@ for jj=1:length(zvec)
     curr3 = i1(3) + (i2(3)-i1(3))/(zb-za)*(z0-za);
     curr4 = i1(4) + (i2(4)-i1(4))/(zb-za)*(z0-za);
 
+
     curr_lin(jj,:) = [curr1 curr2 curr3 curr4];
-
-    % Bme = curr1*Bz1 + curr2*Bz2 + curr3*Bz3 + curr4*Bz4;
-    % Gme = curr1*Gz1 + curr2*Gz2 + curr3*Gz3 + curr4*Gz4;
-
-    % Bcurve(jj) = Bme;
-    % Gcurve(jj) = Gme;
 end
 
 
