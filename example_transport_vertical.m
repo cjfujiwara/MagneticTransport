@@ -122,6 +122,11 @@ A = [B_bc(5,4) B_bc(5,6);
     G_bc(5,4) G_bc(5,6)];
 id=A\[B0; G0];
 
+% at zfinal only want Coil 5 and Coil 6
+A = [B_bc(6,5) B_bc(6,6);
+    G_bc(6,5) G_bc(6,6)];
+ifinal=A\[B0; G0];
+
 
 %% Plot Field And Gradient
 figure(1);
@@ -491,6 +496,83 @@ ylim([-50 70]);
 % plot(1e3*z_cd,G_cd,'k-')
 % ylabel('gradient (G/cm)');
 
+%% Zone d to final calculation
+n = 100;                % Points in this zone to evaluate
+z_dfinal = linspace(zd,z_final,n);  % Vector of points to calculate
+
+n1 = (1):(n);
+n2 = (1+n):(2*n);
+n3 = (1+2*n):(3*n);
+
+% Recalculate the field at this specific mesh because it is numerically
+% easier to solve the problem on a mesh that is equally spaced between the
+% high symmetry points.
+
+% Find the Bfield at these points
+b4 = interp1(Z,B(:,4),z_dfinal,'spline');
+b5 = interp1(Z,B(:,5),z_dfinal,'spline');
+b6 = interp1(Z,B(:,6),z_dfinal,'spline');
+
+% Find the gradient at these points
+g4 = interp1(Z,G(:,1),z_dfinal,'spline');
+g5 = interp1(Z,G(:,2),z_dfinal,'spline');
+g6 = interp1(Z,G(:,3),z_dfinal,'spline');
+
+% Construct the field constraint matrix
+field_constraint_matrix = [diag(b4) diag(b5) diag(b6)];
+field_constraint = ones(n,1)*B0;
+
+% Construct the gradient constraint matrix
+gradient_constraint_matrix = [diag(g4) diag(g5) diag(g6)];
+gradient_constraint = ones(n,1)*G0;
+
+% Construct the boundary condition constraint matrix
+bc_matrix = zeros(8,n*3);
+bc_target = zeros(8,1);
+bc_matrix(1,1)       = 1; bc_target(1) = id(1);     % I1(za) = calculated
+bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I2(za) = calculated
+bc_matrix(3,1+2*n)   = 1; bc_target(3) = id(2);     % I3(za) = 0
+
+bc_matrix(4,n)       = 1; bc_target(4) = 0;             % I1(zb) = 0;
+bc_matrix(5,2*n)     = 1; bc_target(5) = ifinal(1);     % I2(zb) = calculated;
+bc_matrix(6,3*n)     = 1; bc_target(6) = ifinal(2);     % I3(zb) = 0;
+
+% Assemble all constraints
+constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
+constraint_vector = [field_constraint; gradient_constraint; bc_target];
+
+% Initial guess is the simple linear solution
+i4_guess = linspace(id(1),0,n);
+i5_guess = linspace(0,ifinal(1),n);
+i6_guess = linspace(id(1),ifinal(2),n);
+init_guess = [i4_guess i5_guess i6_guess];
+
+func = @(curr) sum(diff(curr(n1)).^2) + ...
+    sum(diff(curr(n2)).^2) + ...
+    sum(diff(curr(n3)).^2);
+
+x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
+
+i4_dfinal = x(n1);
+i5_dfinal = x(n2);
+i6_dfinal = x(n3);
+
+G_dfinal = i4_dfinal.*g4 + i5_dfinal.*g5 + i6_dfinal.*g6;
+B_dfinal = i4_dfinal.*b4 + i5_dfinal.*b5 + i6_dfinal.*b6;
+
+%% Plot it
+
+figure(6);
+clf
+plot(1e3*z_dfinal,i4_dfinal,'-','linewidth',1','color',co(4,:))
+hold on
+plot(1e3*z_dfinal,i5_dfinal,'-','linewidth',1','color',co(5,:))
+plot(1e3*z_dfinal,i6_dfinal,'-','linewidth',1','color',co(6,:))
+xlabel('position (mm)');
+ylabel('current (A)');
+xlim(1e3*[zd z_final]);
+ylim([-50 70]);
+%%
 
 
 %{
