@@ -514,9 +514,9 @@ b5 = interp1(Z,B(:,5),z_dfinal,'spline');
 b6 = interp1(Z,B(:,6),z_dfinal,'spline');
 
 % Find the gradient at these points
-g4 = interp1(Z,G(:,1),z_dfinal,'spline');
-g5 = interp1(Z,G(:,2),z_dfinal,'spline');
-g6 = interp1(Z,G(:,3),z_dfinal,'spline');
+g4 = interp1(Z,G(:,4),z_dfinal,'spline');
+g5 = interp1(Z,G(:,5),z_dfinal,'spline');
+g6 = interp1(Z,G(:,6),z_dfinal,'spline');
 
 % Construct the field constraint matrix
 field_constraint_matrix = [diag(b4) diag(b5) diag(b6)];
