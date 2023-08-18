@@ -54,7 +54,7 @@ za = z_centers(2);
 zb = z_centers(3);
 zc = z_centers(4);
 zd = z_centers(5);
-z_final = z_centers(5)+z_centers(6);
+z_final = (z_centers(5)+z_centers(6))*.5;
 
 z_symmetry = [z_init za zb zc zd z_final];
 %% Initialize data vectors
@@ -226,10 +226,10 @@ plot(1e3*z_ab,i4_ab,'-','linewidth',1','color',co(4,:))
 xlabel('position (mm)');
 ylabel('current (A)');
 xlim(1e3*[za zb]);
-ylim([-50 50]);
-yyaxis right
-plot(1e3*z_bc,G_ab,'k-')
-ylabel('gradient (G/cm)');
+ylim([-50 70]);
+% yyaxis right
+% plot(1e3*z_bc,G_ab,'k-')
+% ylabel('gradient (G/cm)');
 %% Zone b to c calculation
 n = 100;                % Points in this zone to evaluate
 z_bc = linspace(zb,zc,n);  % Vector of points to calculate
@@ -315,14 +315,14 @@ plot(1e3*z_bc,i5_bc,'-','linewidth',1','color',co(5,:))
 xlabel('position (mm)');
 ylabel('current (A)');
 xlim(1e3*[zb zc]);
-ylim([-50 50]);
-yyaxis right
-plot(1e3*z_bc,G_bc,'k-')
-ylabel('gradient (G/cm)');
+ylim([-50 70]);
+% yyaxis right
+% plot(1e3*z_bc,G_bc,'k-')
+% ylabel('gradient (G/cm)');
 
 %% Zone c to d calculation
 n = 100;                % Points in this zone to evaluate
-z_bc = linspace(zc,zd,n);  % Vector of points to calculate
+z_cd = linspace(zc,zd,n);  % Vector of points to calculate
 
 n1 = (1):(n);
 n2 = (1+n):(2*n);
@@ -334,16 +334,16 @@ n4 = (1+3*n):(4*n);
 % high symmetry points.
 
 % Find the Bfield at these points
-b3 = interp1(Z,B(:,3),z_bc,'spline');
-b4 = interp1(Z,B(:,4),z_bc,'spline');
-b5 = interp1(Z,B(:,5),z_bc,'spline');
-b6 = interp1(Z,B(:,6),z_bc,'spline');
+b3 = interp1(Z,B(:,3),z_cd,'spline');
+b4 = interp1(Z,B(:,4),z_cd,'spline');
+b5 = interp1(Z,B(:,5),z_cd,'spline');
+b6 = interp1(Z,B(:,6),z_cd,'spline');
 
 % Find the gradient at these points
-g3 = interp1(Z,G(:,3),z_bc,'spline');
-g4 = interp1(Z,G(:,4),z_bc,'spline');
-g5 = interp1(Z,G(:,5),z_bc,'spline');
-g6 = interp1(Z,G(:,6),z_bc,'spline');
+g3 = interp1(Z,G(:,3),z_cd,'spline');
+g4 = interp1(Z,G(:,4),z_cd,'spline');
+g5 = interp1(Z,G(:,5),z_cd,'spline');
+g6 = interp1(Z,G(:,6),z_cd,'spline');
 
 % Construct the field constraint matrix
 field_constraint_matrix = [diag(b3) diag(b4) diag(b5) diag(b6)];
@@ -405,14 +405,14 @@ plot(1e3*z_cd,i6_cd,'-','linewidth',1','color',co(6,:))
 xlabel('position (mm)');
 ylabel('current (A)');
 xlim(1e3*[zc zd]);
-ylim([-50 50]);
-yyaxis right
-plot(1e3*z_cd,G_cd,'k-')
-ylabel('gradient (G/cm)');
+ylim([-50 70]);
+% yyaxis right
+% plot(1e3*z_cd,G_cd,'k-')
+% ylabel('gradient (G/cm)');
 
 
 
-
+%{
 
 %% Zone 1 Solution OLD
 zvec = linspace(za,zb,100);
@@ -610,3 +610,4 @@ plot(zvec,Gfind);
 hold on
 plot(zvec,Bfind);
 
+%}
