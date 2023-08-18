@@ -263,10 +263,10 @@ bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I3(za) = 0
 bc_matrix(3,1+2*n)   = 1; bc_target(3) = ib(2);     % I4(za) = calculated
 bc_matrix(4,1+3*n)   = 1; bc_target(4) = 0;         % I5(za) = 0;
 
-bc_matrix(1,n)       = 1; bc_target(5) = 0;         % I2(zb) = 0;
-bc_matrix(2,2*n)     = 1; bc_target(6) = ic(1);     % I4(zb) = calculated;
-bc_matrix(3,3*n)     = 1; bc_target(7) = 0;         % I4(zb) = 0;
-bc_matrix(4,4*n)     = 1; bc_target(8) = ic(2);     % I5(zb) = calculated;
+bc_matrix(5,n)       = 1; bc_target(5) = 0;         % I2(zb) = 0;
+bc_matrix(6,2*n)     = 1; bc_target(6) = ic(1);     % I4(zb) = calculated;
+bc_matrix(7,3*n)     = 1; bc_target(7) = 0;         % I4(zb) = 0;
+bc_matrix(8,4*n)     = 1; bc_target(8) = ic(2);     % I5(zb) = calculated;
 
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
