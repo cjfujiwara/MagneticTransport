@@ -200,6 +200,16 @@ i4_ab = x(n4);
 Gab = i1_ab.*g1 + i2_ab.*g2 + i3_ab.*g3 + i4_ab.*g4;
 Bab = i1_ab.*b1 + i2_ab.*b2 + i3_ab.*b3 + i4_ab.*b4;
 
+%%
+
+figure(2);
+subplot(121)
+plot(z,i1_ab)
+hold on
+plot(z,i2_ab)
+plot(z,i3_ab)
+plot(z,i4_ab)
+
 %% Zone 1 Solution OLD
 zvec = linspace(za,zb,100);
 
