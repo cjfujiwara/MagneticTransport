@@ -218,6 +218,8 @@ plot(1e3*z_ab,i3_ab,'-','linewidth',1','color',co(3,:))
 plot(1e3*z_ab,i4_ab,'-','linewidth',1','color',co(4,:))
 xlabel('position (mm)');
 ylabel('current (A)');
+xlim(1e3*[za zb]);
+ylim([-50 50]);
 
 %% Zone b to c calculation
 n = 100;                % Points in this zone to evaluate
@@ -303,7 +305,8 @@ plot(1e3*z_bc,i4_bc,'-','linewidth',1','color',co(4,:))
 plot(1e3*z_bc,i5_bc,'-','linewidth',1','color',co(5,:))
 xlabel('position (mm)');
 ylabel('current (A)');
-
+xlim(1e3*[zb zc]);
+ylim([-50 50]);
 
 
 
