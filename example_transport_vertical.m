@@ -24,7 +24,23 @@ coils = makeVerticalCoils;
 % Because the problem is over contstrained, we shall constrain the problem
 % by minizing the current curvature which makes the current regulation the
 % smoothest.
-
+%
+% To minimize the curvature we desire to minimze the function
+%
+% func({I_i}(z)) = sum_i ( integral_za_to_zb ( dI_i/dz)^2 dz)
+% Where I_i(z) is the current for a given coil and za and zb are the edges
+% of a unit cell.  This is a very simple minimization problem whose
+% solution is just a line (if all coils and intervals are symmetric) 
+% 
+% In the presnece of realistic assymetries, the boundary conditions modify
+% the solution to this minimization problem
+%
+% The constraint is a simple linear constraint on all I_i(z) such that the
+% field gradient is some target value G0 and the B field is some target
+% value B0 = 0 Gauss.
+%
+% The final constraint are the boundary conditions which we set by the high
+% symmetry points which are physically motivated.
 
 % Find center position of each coil
 z_centers=zeros(6,1);
@@ -42,17 +58,17 @@ z_final = z_centers(5)+z_centers(6);
 
 z_symmetry = [z_init za zb zc zd z_final];
 %% Initialize data vectors
-N = 5e3; % Number of positions to evalulate
+N = 1e4; % Number of positions to evalulate
 dL  = 1e-4; % Distance separation for calculating the gradient
 Z = linspace(z_init,z_final,N);
 
 B0 = 0;     % Target field in Gauss
-G0 = 0;     % Target gradient in Gauss/cm
+G0 = 100;     % Target gradient in Gauss/cm
 
-
+% Vectors for magnetic fields and gradients
 B = zeros(N,6);
 G = zeros(N,6);
-%% Calculate the field at all points in space.
+%% Calculate the field and gradient at all points in space for all coils
 
 for kk=1:length(coils)
     C = coils(kk).Coil;    
@@ -72,10 +88,24 @@ G = G*1e2;
 B_bc = zeros(6,6);
 G_bc = zeros(6,6);
 
+I_bc = zeros(6,6);
+
 for kk=1:length(coils)
     B_bc(:,kk) = interp1(Z,B(:,kk)',z_symmetry,'spline');
     G_bc(:,kk) = interp1(Z,G(:,kk)',z_symmetry,'spline');
 end
+
+%% Calculate the set currents at the high symmetry points
+
+% at za only want Coil 1 and Coil 3
+A = [B_bc(2,1) B_bc(2,3);
+    G_bc(2,1) G_bc(2,3)];
+ia=A\[B0; G0];
+
+% at zb only want Coil 2 and Coil 4
+A = [B_bc(3,2) B_bc(3,4);
+    G_bc(3,2) G_bc(3,4)];
+ib=A\[B0; G0];
 
 %% Plot Field And Gradient
 figure(1);
@@ -100,7 +130,67 @@ legend({'12a','12b','13','14','15','16'})
 
 
 %% Zone a to b calculation
+n = 100;                % Points in this zone to evaluate
+z = linspace(za,zb,n);  % Vector of points to calculate
 
+n1 = (1):(n);
+n2 = (1+n):(2*n);
+n3 = (1+2*n):(3*n);
+n4 = (1+3*n):(4*n);
+
+% Recalculate the field at this specific mesh because it is numerically
+% easier to solve the problem on a mesh that is equally spaced between the
+% high symmetry points.
+
+% Find the Bfield at these points
+b1 = interp1(Z,B(:,1),z,'spline');
+b2 = interp1(Z,B(:,2),z,'spline');
+b3 = interp1(Z,B(:,3),z,'spline');
+b4 = interp1(Z,B(:,4),z,'spline');
+
+% Find the gradient at these points
+g1 = interp1(Z,B(:,1),z,'spline');
+g2 = interp1(Z,B(:,2),z,'spline');
+g3 = interp1(Z,B(:,3),z,'spline');
+g4 = interp1(Z,B(:,4),z,'spline');
+
+% Construct the field constraint matrix
+field_constraint_matrix = [diag(b1) diag(b2) diag(b3) diag(b4)];
+field_constraint = ones(length(z),1)*B0;
+
+% Construct the gradient constraint matrix
+gradient_constraint_matrix = [diag(g1) diag(g2) diag(g3) diag(g4)];
+gradient_constraint = ones(length(z),1)*G0;
+
+% Construct the boundary condition constraint matrix
+bc_matrix = zeros(8,n*4);
+bc_target = zeros(8,1);
+bc_matrix(1,1)       = 1; bc_target(1) = ia(1);     % I1(za) = calculated
+bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I2(za) = 0
+bc_matrix(3,1+2*n)   = 1; bc_target(3) = ia(2);     % I3(za) = calculated
+bc_matrix(4,1+3*n)   = 1; bc_target(4) = 0;         % I4(za) = 0;
+bc_matrix(5,1)       = 1; bc_target(5) = 0;         % I1(zb) = 0;
+bc_matrix(6,1+n)     = 1; bc_target(6) = ib(1);     % I2(zb) = calculated;
+bc_matrix(7,1+2*n)   = 1; bc_target(7) = 0;         % I3(zb) = 0;
+bc_matrix(8,1+3*n)   = 1; bc_target(8) = ib(2);     % I4(zb) = calculated;
+
+% Assemble all constraints
+constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
+constraint_vector = [field_constraint; gradient_constraint; bc_target];
+
+% Initial guess is the simple linear solution
+i1_guess = linspace(ia(1),0,n);
+i2_guess = linspace(0,ib(1),n);
+i3_guess = linspace(ia(2),0,n);
+i4_guess = linspace(0,ib(1),n);
+init_guess = [i1_guess i2_guess i3_guess i4_guess];
+
+func = @(curr) sum(diff(curr(n1)).^2) + ...
+    sum(diff(curr(n2)).^2) + ...
+    sum(diff(curr(n3)).^2) + ...
+    sum(diff(curr(n4)).^2);
+
+x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
 
 
 
