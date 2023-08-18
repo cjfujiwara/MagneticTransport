@@ -112,6 +112,12 @@ A = [B_bc(4,3) B_bc(4,5);
     G_bc(4,3) G_bc(4,5)];
 ic=A\[B0; G0];
 
+% at zd only want Coil 4 and Coil 6
+A = [B_bc(5,4) B_bc(5,6);
+    G_bc(5,4) G_bc(5,6)];
+id=A\[B0; G0];
+
+
 %% Plot Field And Gradient
 figure(1);
 clf
@@ -205,8 +211,8 @@ i2_ab = x(n2);
 i3_ab = x(n3);
 i4_ab = x(n4);
 
-Gab = i1_ab.*g1 + i2_ab.*g2 + i3_ab.*g3 + i4_ab.*g4;
-Bab = i1_ab.*b1 + i2_ab.*b2 + i3_ab.*b3 + i4_ab.*b4;
+G_ab = i1_ab.*g1 + i2_ab.*g2 + i3_ab.*g3 + i4_ab.*g4;
+B_ab = i1_ab.*b1 + i2_ab.*b2 + i3_ab.*b3 + i4_ab.*b4;
 
 %% Plot it
 
@@ -221,7 +227,9 @@ xlabel('position (mm)');
 ylabel('current (A)');
 xlim(1e3*[za zb]);
 ylim([-50 50]);
-
+yyaxis right
+plot(1e3*z_bc,G_ab,'k-')
+ylabel('gradient (G/cm)');
 %% Zone b to c calculation
 n = 100;                % Points in this zone to evaluate
 z_bc = linspace(zb,zc,n);  % Vector of points to calculate
@@ -292,8 +300,8 @@ i3_bc = x(n2);
 i4_bc = x(n3);
 i5_bc = x(n4);
 
-Gbc = i2_bc.*g2 + i3_bc.*g3 + i4_bc.*g4 + i5_bc.*g5;
-Bbc = i2_bc.*b2 + i3_bc.*b3 + i4_bc.*b4 + i5_bc.*g5;
+G_bc = i2_bc.*g2 + i3_bc.*g3 + i4_bc.*g4 + i5_bc.*g5;
+B_bc = i2_bc.*b2 + i3_bc.*b3 + i4_bc.*b4 + i5_bc.*g5;
 
 %% Plot it
 
@@ -308,20 +316,99 @@ xlabel('position (mm)');
 ylabel('current (A)');
 xlim(1e3*[zb zc]);
 ylim([-50 50]);
+yyaxis right
+plot(1e3*z_bc,G_bc,'k-')
+ylabel('gradient (G/cm)');
 
+%% Zone c to d calculation
+n = 100;                % Points in this zone to evaluate
+z_bc = linspace(zc,zd,n);  % Vector of points to calculate
 
+n1 = (1):(n);
+n2 = (1+n):(2*n);
+n3 = (1+2*n):(3*n);
+n4 = (1+3*n):(4*n);
 
+% Recalculate the field at this specific mesh because it is numerically
+% easier to solve the problem on a mesh that is equally spaced between the
+% high symmetry points.
 
+% Find the Bfield at these points
+b3 = interp1(Z,B(:,3),z_bc,'spline');
+b4 = interp1(Z,B(:,4),z_bc,'spline');
+b5 = interp1(Z,B(:,5),z_bc,'spline');
+b6 = interp1(Z,B(:,6),z_bc,'spline');
 
+% Find the gradient at these points
+g3 = interp1(Z,G(:,3),z_bc,'spline');
+g4 = interp1(Z,G(:,4),z_bc,'spline');
+g5 = interp1(Z,G(:,5),z_bc,'spline');
+g6 = interp1(Z,G(:,6),z_bc,'spline');
 
+% Construct the field constraint matrix
+field_constraint_matrix = [diag(b3) diag(b4) diag(b5) diag(b6)];
+field_constraint = ones(n,1)*B0;
 
+% Construct the gradient constraint matrix
+gradient_constraint_matrix = [diag(g3) diag(g4) diag(g5) diag(g6)];
+gradient_constraint = ones(n,1)*G0;
 
+% Construct the boundary condition constraint matrix
+bc_matrix = zeros(8,n*4);
+bc_target = zeros(8,1);
+bc_matrix(1,1)       = 1; bc_target(1) = ic(1);     % I2(za) = calculated
+bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I3(za) = 0
+bc_matrix(3,1+2*n)   = 1; bc_target(3) = ic(2);     % I4(za) = calculated
+bc_matrix(4,1+3*n)   = 1; bc_target(4) = 0;         % I5(za) = 0;
 
+bc_matrix(5,n)       = 1; bc_target(5) = 0;         % I2(zb) = 0;
+bc_matrix(6,2*n)     = 1; bc_target(6) = id(1);     % I4(zb) = calculated;
+bc_matrix(7,3*n)     = 1; bc_target(7) = 0;         % I4(zb) = 0;
+bc_matrix(8,4*n)     = 1; bc_target(8) = id(2);     % I5(zb) = calculated;
 
+% Assemble all constraints
+constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
+constraint_vector = [field_constraint; gradient_constraint; bc_target];
 
+% Initial guess is the simple linear solution
+i3_guess = linspace(ic(1),0,n);
+i4_guess = linspace(0,id(1),n);
+i5_guess = linspace(ic(2),0,n);
+i6_guess = linspace(0,id(2),n);
 
+init_guess = [i3_guess i4_guess i5_guess i6_guess];
 
+func = @(curr) sum(diff(curr(n1)).^2) + ...
+    sum(diff(curr(n2)).^2) + ...
+    sum(diff(curr(n3)).^2) + ...
+    sum(diff(curr(n4)).^2);
 
+x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
+
+i3_cd = x(n1);
+i4_cd = x(n2);
+i5_cd = x(n3);
+i6_cd = x(n4);
+
+G_cd = i3_cd.*g3 + i4_cd.*g4 + i5_cd.*g5 + i6_cd.*g6;
+B_cd = i3_cd.*b3 + i4_cd.*b4 + i5_cd.*b5 + i6_cd.*b6;
+
+%% Plot it
+
+figure(4);
+clf
+plot(1e3*z_cd,i3_cd,'-','linewidth',1','color',co(3,:))
+hold on
+plot(1e3*z_cd,i4_cd,'-','linewidth',1','color',co(4,:))
+plot(1e3*z_cd,i5_cd,'-','linewidth',1','color',co(5,:))
+plot(1e3*z_cd,i6_cd,'-','linewidth',1','color',co(6,:))
+xlabel('position (mm)');
+ylabel('current (A)');
+xlim(1e3*[zc zd]);
+ylim([-50 50]);
+yyaxis right
+plot(1e3*z_cd,G_cd,'k-')
+ylabel('gradient (G/cm)');
 
 
 
