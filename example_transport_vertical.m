@@ -107,31 +107,38 @@ A = [B_bc(3,2) B_bc(3,4);
     G_bc(3,2) G_bc(3,4)];
 ib=A\[B0; G0];
 
+% at zc only want Coil 3 and Coil 5
+A = [B_bc(4,3) B_bc(4,5);
+    G_bc(4,3) G_bc(4,5)];
+ic=A\[B0; G0];
+
 %% Plot Field And Gradient
 figure(1);
 clf
+co=get(gca,'colororder');
+
 subplot(211)
 for kk=1:length(coils)
-    plot(Z*1e3,B(:,kk),'-','linewidth',1);
+    plot(Z*1e3,B(:,kk),'-','linewidth',1,'color',co(kk,:));
     hold on
 end
 xlabel('position (mm)')
-ylabel('field @ 1A (G)')
+ylabel('B(z) @ 1A (G)')
 legend({'12a','12b','13','14','15','16'})
 
 subplot(212)
 for kk=1:length(coils)
-    plot(Z*1e3,G(:,kk),'-','linewidth',1);
+    plot(Z*1e3,G(:,kk),'-','linewidth',1,'color',co(kk,:));
     hold on
 end
 xlabel('position (mm)')
-ylabel('gradient @ 1A (G/cm)')
+ylabel('dB/dz @ 1A (G/cm)')
 legend({'12a','12b','13','14','15','16'})
 
 
 %% Zone a to b calculation
 n = 100;                % Points in this zone to evaluate
-z = linspace(za,zb,n);  % Vector of points to calculate
+z_ab = linspace(za,zb,n);  % Vector of points to calculate
 
 n1 = (1):(n);
 n2 = (1+n):(2*n);
@@ -143,24 +150,24 @@ n4 = (1+3*n):(4*n);
 % high symmetry points.
 
 % Find the Bfield at these points
-b1 = interp1(Z,B(:,1),z,'spline');
-b2 = interp1(Z,B(:,2),z,'spline');
-b3 = interp1(Z,B(:,3),z,'spline');
-b4 = interp1(Z,B(:,4),z,'spline');
+b1 = interp1(Z,B(:,1),z_ab,'spline');
+b2 = interp1(Z,B(:,2),z_ab,'spline');
+b3 = interp1(Z,B(:,3),z_ab,'spline');
+b4 = interp1(Z,B(:,4),z_ab,'spline');
 
 % Find the gradient at these points
-g1 = interp1(Z,G(:,1),z,'spline');
-g2 = interp1(Z,G(:,2),z,'spline');
-g3 = interp1(Z,G(:,3),z,'spline');
-g4 = interp1(Z,G(:,4),z,'spline');
+g1 = interp1(Z,G(:,1),z_ab,'spline');
+g2 = interp1(Z,G(:,2),z_ab,'spline');
+g3 = interp1(Z,G(:,3),z_ab,'spline');
+g4 = interp1(Z,G(:,4),z_ab,'spline');
 
 % Construct the field constraint matrix
 field_constraint_matrix = [diag(b1) diag(b2) diag(b3) diag(b4)];
-field_constraint = ones(length(z),1)*B0;
+field_constraint = ones(n,1)*B0;
 
 % Construct the gradient constraint matrix
 gradient_constraint_matrix = [diag(g1) diag(g2) diag(g3) diag(g4)];
-gradient_constraint = ones(length(z),1)*G0;
+gradient_constraint = ones(n,1)*G0;
 
 % Construct the boundary condition constraint matrix
 bc_matrix = zeros(8,n*4);
@@ -200,15 +207,120 @@ i4_ab = x(n4);
 Gab = i1_ab.*g1 + i2_ab.*g2 + i3_ab.*g3 + i4_ab.*g4;
 Bab = i1_ab.*b1 + i2_ab.*b2 + i3_ab.*b3 + i4_ab.*b4;
 
-%%
+%% Plot it
 
 figure(2);
 subplot(121)
-plot(z,i1_ab)
+plot(1e3*z_ab,i1_ab,'-','linewidth',1','color',co(1,:))
 hold on
-plot(z,i2_ab)
-plot(z,i3_ab)
-plot(z,i4_ab)
+plot(1e3*z_ab,i2_ab,'-','linewidth',1','color',co(2,:))
+plot(1e3*z_ab,i3_ab,'-','linewidth',1','color',co(3,:))
+plot(1e3*z_ab,i4_ab,'-','linewidth',1','color',co(4,:))
+xlabel('position (mm)');
+ylabel('current (A)');
+
+%% Zone a to b calculation
+n = 100;                % Points in this zone to evaluate
+z_bc = linspace(zb,zc,n);  % Vector of points to calculate
+
+n1 = (1):(n);
+n2 = (1+n):(2*n);
+n3 = (1+2*n):(3*n);
+n4 = (1+3*n):(4*n);
+
+% Recalculate the field at this specific mesh because it is numerically
+% easier to solve the problem on a mesh that is equally spaced between the
+% high symmetry points.
+
+% Find the Bfield at these points
+b2 = interp1(Z,B(:,2),z_bc,'spline');
+b3 = interp1(Z,B(:,3),z_bc,'spline');
+b4 = interp1(Z,B(:,4),z_bc,'spline');
+b5 = interp1(Z,B(:,5),z_bc,'spline');
+
+% Find the gradient at these points
+g2 = interp1(Z,G(:,2),z_bc,'spline');
+g3 = interp1(Z,G(:,3),z_bc,'spline');
+g4 = interp1(Z,G(:,4),z_bc,'spline');
+g5 = interp1(Z,G(:,5),z_bc,'spline');
+
+% Construct the field constraint matrix
+field_constraint_matrix = [diag(b2) diag(b3) diag(b4) diag(b5)];
+field_constraint = ones(n,1)*B0;
+
+% Construct the gradient constraint matrix
+gradient_constraint_matrix = [diag(g2) diag(g3) diag(g4) diag(g5)];
+gradient_constraint = ones(n,1)*G0;
+
+% Construct the boundary condition constraint matrix
+bc_matrix = zeros(8,n*4);
+bc_target = zeros(8,1);
+bc_matrix(1,1)       = 1; bc_target(1) = ib(1);     % I1(za) = calculated
+bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I2(za) = 0
+bc_matrix(3,1+2*n)   = 1; bc_target(3) = ib(2);     % I3(za) = calculated
+bc_matrix(4,1+3*n)   = 1; bc_target(4) = 0;         % I4(za) = 0;
+bc_matrix(1,n)       = 1; bc_target(5) = 0;         % I1(zb) = 0;
+bc_matrix(2,2*n)     = 1; bc_target(6) = ic(1);     % I2(zb) = calculated;
+bc_matrix(3,3*n)     = 1; bc_target(7) = 0;         % I3(zb) = 0;
+bc_matrix(4,4*n)     = 1; bc_target(8) = ic(2);     % I4(zb) = calculated;
+
+% Assemble all constraints
+constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
+constraint_vector = [field_constraint; gradient_constraint; bc_target];
+
+% Initial guess is the simple linear solution
+i2_guess = linspace(ib(1),0,n);
+i3_guess = linspace(0,ic(1),n);
+i4_guess = linspace(ib(2),0,n);
+i5_guess = linspace(0,ic(2),n);
+
+init_guess = [i2_guess i3_guess i4_guess i5_guess];
+
+func = @(curr) sum(diff(curr(n1)).^2) + ...
+    sum(diff(curr(n2)).^2) + ...
+    sum(diff(curr(n3)).^2) + ...
+    sum(diff(curr(n4)).^2);
+
+x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
+
+i2_bc = x(n1);
+i3_bc = x(n2);
+i4_bc = x(n3);
+i5_bc = x(n4);
+
+Gbc = i2_bc.*g2 + i3_bc.*g3 + i4_bc.*g4 + i5_bc.*g5;
+Bbc = i2_bc.*b2 + i3_bc.*b3 + i4_bc.*b4 + i5_bc.*g5;
+
+%% Plot it
+
+figure(3);
+subplot(121)
+plot(1e3*z_bc,i1_bc,'-','linewidth',1','color',co(2,:))
+hold on
+plot(1e3*z_bc,i2_bc,'-','linewidth',1','color',co(3,:))
+plot(1e3*z_bc,i3_bc,'-','linewidth',1','color',co(4,:))
+plot(1e3*z_bc,i4_bc,'-','linewidth',1','color',co(5,:))
+xlabel('position (mm)');
+ylabel('current (A)');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 %% Zone 1 Solution OLD
 zvec = linspace(za,zb,100);
