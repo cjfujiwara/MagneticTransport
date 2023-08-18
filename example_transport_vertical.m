@@ -210,7 +210,7 @@ Bab = i1_ab.*b1 + i2_ab.*b2 + i3_ab.*b3 + i4_ab.*b4;
 %% Plot it
 
 figure(2);
-subplot(121)
+clf
 plot(1e3*z_ab,i1_ab,'-','linewidth',1','color',co(1,:))
 hold on
 plot(1e3*z_ab,i2_ab,'-','linewidth',1','color',co(2,:))
@@ -294,12 +294,12 @@ Bbc = i2_bc.*b2 + i3_bc.*b3 + i4_bc.*b4 + i5_bc.*g5;
 %% Plot it
 
 figure(3);
-subplot(121)
-plot(1e3*z_bc,i1_bc,'-','linewidth',1','color',co(2,:))
+clf
+plot(1e3*z_bc,i2_bc,'-','linewidth',1','color',co(2,:))
 hold on
-plot(1e3*z_bc,i2_bc,'-','linewidth',1','color',co(3,:))
-plot(1e3*z_bc,i3_bc,'-','linewidth',1','color',co(4,:))
-plot(1e3*z_bc,i4_bc,'-','linewidth',1','color',co(5,:))
+plot(1e3*z_bc,i3_bc,'-','linewidth',1','color',co(3,:))
+plot(1e3*z_bc,i4_bc,'-','linewidth',1','color',co(4,:))
+plot(1e3*z_bc,i5_bc,'-','linewidth',1','color',co(5,:))
 xlabel('position (mm)');
 ylabel('current (A)');
 
