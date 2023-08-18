@@ -192,7 +192,13 @@ func = @(curr) sum(diff(curr(n1)).^2) + ...
 
 x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
 
+i1_ab = x(n1);
+i2_ab = x(n2);
+i3_ab = x(n3);
+i4_ab = x(n4);
 
+Gab = i1_ab.*g1 + i2_ab.*g2 + i3_ab.*g3 + i4_ab.*g4;
+Bab = i1_ab.*b1 + i2_ab.*b2 + i3_ab.*b3 + i4_ab.*b4;
 
 %% Zone 1 Solution OLD
 zvec = linspace(za,zb,100);
