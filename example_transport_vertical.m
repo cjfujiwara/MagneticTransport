@@ -219,7 +219,7 @@ plot(1e3*z_ab,i4_ab,'-','linewidth',1','color',co(4,:))
 xlabel('position (mm)');
 ylabel('current (A)');
 
-%% Zone a to b calculation
+%% Zone b to c calculation
 n = 100;                % Points in this zone to evaluate
 z_bc = linspace(zb,zc,n);  % Vector of points to calculate
 
@@ -255,14 +255,15 @@ gradient_constraint = ones(n,1)*G0;
 % Construct the boundary condition constraint matrix
 bc_matrix = zeros(8,n*4);
 bc_target = zeros(8,1);
-bc_matrix(1,1)       = 1; bc_target(1) = ib(1);     % I1(za) = calculated
-bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I2(za) = 0
-bc_matrix(3,1+2*n)   = 1; bc_target(3) = ib(2);     % I3(za) = calculated
-bc_matrix(4,1+3*n)   = 1; bc_target(4) = 0;         % I4(za) = 0;
-bc_matrix(1,n)       = 1; bc_target(5) = 0;         % I1(zb) = 0;
-bc_matrix(2,2*n)     = 1; bc_target(6) = ic(1);     % I2(zb) = calculated;
-bc_matrix(3,3*n)     = 1; bc_target(7) = 0;         % I3(zb) = 0;
-bc_matrix(4,4*n)     = 1; bc_target(8) = ic(2);     % I4(zb) = calculated;
+bc_matrix(1,1)       = 1; bc_target(1) = ib(1);     % I2(za) = calculated
+bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I3(za) = 0
+bc_matrix(3,1+2*n)   = 1; bc_target(3) = ib(2);     % I4(za) = calculated
+bc_matrix(4,1+3*n)   = 1; bc_target(4) = 0;         % I5(za) = 0;
+
+bc_matrix(1,n)       = 1; bc_target(5) = 0;         % I2(zb) = 0;
+bc_matrix(2,2*n)     = 1; bc_target(6) = ic(1);     % I4(zb) = calculated;
+bc_matrix(3,3*n)     = 1; bc_target(7) = 0;         % I4(zb) = 0;
+bc_matrix(4,4*n)     = 1; bc_target(8) = ic(2);     % I5(zb) = calculated;
 
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
