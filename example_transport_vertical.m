@@ -182,7 +182,7 @@ constraint_vector = [field_constraint; gradient_constraint; bc_target];
 i1_guess = linspace(ia(1),0,n);
 i2_guess = linspace(0,ib(1),n);
 i3_guess = linspace(ia(2),0,n);
-i4_guess = linspace(0,ib(1),n);
+i4_guess = linspace(0,ib(2),n);
 init_guess = [i1_guess i2_guess i3_guess i4_guess];
 
 func = @(curr) sum(diff(curr(n1)).^2) + ...
