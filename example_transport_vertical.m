@@ -97,6 +97,11 @@ end
 
 %% Calculate the set currents at the high symmetry points
 
+% at z_init only want Coil 1 and Coil 2
+A = [B_bc(1,1) B_bc(1,2);
+    G_bc(1,1) G_bc(1,2)];
+i0=A\[B0; G0];
+
 % at za only want Coil 1 and Coil 3
 A = [B_bc(2,1) B_bc(2,3);
     G_bc(2,1) G_bc(2,3)];
@@ -141,6 +146,82 @@ xlabel('position (mm)')
 ylabel('dB/dz @ 1A (G/cm)')
 legend({'12a','12b','13','14','15','16'})
 
+%% Zone init to a calculation
+n = 100;                % Points in this zone to evaluate
+z_0a = linspace(z_init,z_init,n);  % Vector of points to calculate
+
+n1 = (1):(n);
+n2 = (1+n):(2*n);
+n3 = (1+2*n):(3*n);
+
+% Recalculate the field at this specific mesh because it is numerically
+% easier to solve the problem on a mesh that is equally spaced between the
+% high symmetry points.
+
+% Find the Bfield at these points
+b1 = interp1(Z,B(:,1),z_0a,'spline');
+b2 = interp1(Z,B(:,2),z_0a,'spline');
+b3 = interp1(Z,B(:,3),z_0a,'spline');
+
+% Find the gradient at these points
+g1 = interp1(Z,G(:,1),z_0a,'spline');
+g2 = interp1(Z,G(:,2),z_0a,'spline');
+g3 = interp1(Z,G(:,3),z_0a,'spline');
+
+% Construct the field constraint matrix
+field_constraint_matrix = [diag(b1) diag(b2) diag(b3)];
+field_constraint = ones(n,1)*B0;
+
+% Construct the gradient constraint matrix
+gradient_constraint_matrix = [diag(g1) diag(g2) diag(g3)];
+gradient_constraint = ones(n,1)*G0;
+
+% Construct the boundary condition constraint matrix
+bc_matrix = zeros(8,n*3);
+bc_target = zeros(8,1);
+bc_matrix(1,1)       = 1; bc_target(1) = i0(1);     % I1(za) = calculated
+bc_matrix(2,1+n)     = 1; bc_target(2) = i0(2);     % I2(za) = calculated
+bc_matrix(3,1+2*n)   = 1; bc_target(3) = 0;         % I3(za) = 0
+
+bc_matrix(4,n)       = 1; bc_target(5) = ib(1);     % I1(zb) = 0;
+bc_matrix(5,2*n)     = 1; bc_target(6) = 0;         % I2(zb) = calculated;
+bc_matrix(6,3*n)     = 1; bc_target(7) = ib(2);     % I3(zb) = 0;
+
+% Assemble all constraints
+constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
+constraint_vector = [field_constraint; gradient_constraint; bc_target];
+
+% Initial guess is the simple linear solution
+i1_guess = linspace(i0(1),ib(1),n);
+i2_guess = linspace(i0(2),0,n);
+i3_guess = linspace(0,ib(2),n);
+init_guess = [i1_guess i2_guess i3_guess];
+
+func = @(curr) sum(diff(curr(n1)).^2) + ...
+    sum(diff(curr(n2)).^2) + ...
+    sum(diff(curr(n3)).^2);
+
+x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
+
+i1_0a = x(n1);
+i2_0a = x(n2);
+i3_0a = x(n3);
+
+G_0a = i1_0a.*g1 + i2_0a.*g2 + i3_ab.*0a;
+B_0a = i1_0a.*b1 + i2_0a.*b2 + i3_ab.*0a;
+
+%% Plot it
+
+figure(2);
+clf
+plot(1e3*z_0a,i1_0a,'-','linewidth',1','color',co(1,:))
+hold on
+plot(1e3*z_0a,i2_0a,'-','linewidth',1','color',co(2,:))
+plot(1e3*z_0a,i3_0a,'-','linewidth',1','color',co(3,:))
+xlabel('position (mm)');
+ylabel('current (A)');
+xlim(1e3*[z_init za]);
+ylim([-50 70]);
 
 %% Zone a to b calculation
 n = 100;                % Points in this zone to evaluate
@@ -216,7 +297,7 @@ B_ab = i1_ab.*b1 + i2_ab.*b2 + i3_ab.*b3 + i4_ab.*b4;
 
 %% Plot it
 
-figure(2);
+figure(3);
 clf
 plot(1e3*z_ab,i1_ab,'-','linewidth',1','color',co(1,:))
 hold on
@@ -305,7 +386,7 @@ B_bc = i2_bc.*b2 + i3_bc.*b3 + i4_bc.*b4 + i5_bc.*g5;
 
 %% Plot it
 
-figure(3);
+figure(4);
 clf
 plot(1e3*z_bc,i2_bc,'-','linewidth',1','color',co(2,:))
 hold on
@@ -395,7 +476,7 @@ B_cd = i3_cd.*b3 + i4_cd.*b4 + i5_cd.*b5 + i6_cd.*b6;
 
 %% Plot it
 
-figure(4);
+figure(5);
 clf
 plot(1e3*z_cd,i3_cd,'-','linewidth',1','color',co(3,:))
 hold on
