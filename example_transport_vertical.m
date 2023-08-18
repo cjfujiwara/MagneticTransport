@@ -2,6 +2,9 @@
 
 % Solve vertical transport in the "easy" regime
 coils = makeVerticalCoils;
+warning off;
+
+options = optimoptions(@fmincon,'MaxIterations',3e4,'MaxFunctionEvaluations',5e4);
 
 %% Establish Symmetry Points
 % During vertical transport there are 6 points of high symmetry. 
@@ -182,8 +185,8 @@ gradient_constraint_matrix = [diag(g1) diag(g2) diag(g3)];
 gradient_constraint = ones(n,1)*G0;
 
 % Construct the boundary condition constraint matrix
-bc_matrix = zeros(8,n*3);
-bc_target = zeros(8,1);
+bc_matrix = zeros(6,n*3);
+bc_target = zeros(6,1);
 bc_matrix(1,1)       = 1; bc_target(1) = i0(1);     % I1(za) = calculated
 bc_matrix(2,1+n)     = 1; bc_target(2) = i0(2);     % I2(za) = calculated
 bc_matrix(3,1+2*n)   = 1; bc_target(3) = 0;         % I3(za) = 0
@@ -195,6 +198,7 @@ bc_matrix(6,3*n)     = 1; bc_target(6) = ia(2);     % I3(zb) = 0;
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
 constraint_vector = [field_constraint; gradient_constraint; bc_target];
+constraint_matrix = sparse(constraint_matrix);
 
 % Initial guess is the simple linear solution
 i1_guess = linspace(i0(1),ia(1),n);
@@ -206,8 +210,8 @@ func = @(curr) sum(diff(curr(n1)).^2) + ...
     sum(diff(curr(n2)).^2) + ...
     sum(diff(curr(n3)).^2);
 
-x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
-
+ x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector,[],[],[],options);
+ 
 i1_0a = x(n1);
 i2_0a = x(n2);
 i3_0a = x(n3);
@@ -277,6 +281,7 @@ bc_matrix(8,4*n)     = 1; bc_target(8) = ib(2);     % I4(zb) = calculated;
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
 constraint_vector = [field_constraint; gradient_constraint; bc_target];
+constraint_matrix = sparse(constraint_matrix);
 
 % Initial guess is the simple linear solution
 i1_guess = linspace(ia(1),0,n);
@@ -290,8 +295,8 @@ func = @(curr) sum(diff(curr(n1)).^2) + ...
     sum(diff(curr(n3)).^2) + ...
     sum(diff(curr(n4)).^2);
 
-x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
-
+ x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector,[],[],[],options);
+ 
 i1_ab = x(n1);
 i2_ab = x(n2);
 i3_ab = x(n3);
@@ -365,6 +370,7 @@ bc_matrix(8,4*n)     = 1; bc_target(8) = ic(2);     % I5(zb) = calculated;
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
 constraint_vector = [field_constraint; gradient_constraint; bc_target];
+constraint_matrix = sparse(constraint_matrix);
 
 % Initial guess is the simple linear solution
 i2_guess = linspace(ib(1),0,n);
@@ -379,8 +385,8 @@ func = @(curr) sum(diff(curr(n1)).^2) + ...
     sum(diff(curr(n3)).^2) + ...
     sum(diff(curr(n4)).^2);
 
-x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
-
+ x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector,[],[],[],options);
+ 
 i2_bc = x(n1);
 i3_bc = x(n2);
 i4_bc = x(n3);
@@ -455,6 +461,7 @@ bc_matrix(8,4*n)     = 1; bc_target(8) = id(2);     % I5(zb) = calculated;
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
 constraint_vector = [field_constraint; gradient_constraint; bc_target];
+constraint_matrix = sparse(constraint_matrix);
 
 % Initial guess is the simple linear solution
 i3_guess = linspace(ic(1),0,n);
@@ -469,8 +476,8 @@ func = @(curr) sum(diff(curr(n1)).^2) + ...
     sum(diff(curr(n3)).^2) + ...
     sum(diff(curr(n4)).^2);
 
-x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
-
+ x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector,[],[],[],options);
+ 
 i3_cd = x(n1);
 i4_cd = x(n2);
 i5_cd = x(n3);
@@ -497,7 +504,7 @@ ylim([-50 70]);
 % ylabel('gradient (G/cm)');
 
 %% Zone d to final calculation
-n = 100;                % Points in this zone to evaluate
+n =100;                % Points in this zone to evaluate
 z_dfinal = linspace(zd,z_final,n);  % Vector of points to calculate
 
 n1 = (1):(n);
@@ -526,33 +533,33 @@ field_constraint = ones(n,1)*B0;
 gradient_constraint_matrix = [diag(g4) diag(g5) diag(g6)];
 gradient_constraint = ones(n,1)*G0;
 
+
 % Construct the boundary condition constraint matrix
-bc_matrix = zeros(8,n*3);
-bc_target = zeros(8,1);
+bc_matrix = zeros(6,n*3);
+bc_target = zeros(6,1);
 bc_matrix(1,1)       = 1; bc_target(1) = id(1);     % I1(za) = calculated
 bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I2(za) = calculated
 bc_matrix(3,1+2*n)   = 1; bc_target(3) = id(2);     % I3(za) = 0
-
 bc_matrix(4,n)       = 1; bc_target(4) = 0;             % I1(zb) = 0;
 bc_matrix(5,2*n)     = 1; bc_target(5) = ifinal(1);     % I2(zb) = calculated;
 bc_matrix(6,3*n)     = 1; bc_target(6) = ifinal(2);     % I3(zb) = 0;
-
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
 constraint_vector = [field_constraint; gradient_constraint; bc_target];
+constraint_matrix = sparse(constraint_matrix);
 
 % Initial guess is the simple linear solution
-i4_guess = linspace(id(1),0,n);
-i5_guess = linspace(0,ifinal(1),n);
-i6_guess = linspace(id(1),ifinal(2),n);
+ i4_guess = linspace(id(1),0,n);
+ i5_guess = linspace(0,ifinal(1),n);
+ i6_guess = linspace(id(1),ifinal(2),n);
 init_guess = [i4_guess i5_guess i6_guess];
 
 func = @(curr) sum(diff(curr(n1)).^2) + ...
     sum(diff(curr(n2)).^2) + ...
     sum(diff(curr(n3)).^2);
 
-x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector);
-
+ x = fmincon(func,init_guess,[],[],constraint_matrix,constraint_vector,[],[],[],options);
+% 
 i4_dfinal = x(n1);
 i5_dfinal = x(n2);
 i6_dfinal = x(n3);
@@ -774,3 +781,5 @@ hold on
 plot(zvec,Bfind);
 
 %}
+%% activate warning
+warning on
