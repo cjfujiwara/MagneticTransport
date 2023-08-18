@@ -169,10 +169,10 @@ bc_matrix(1,1)       = 1; bc_target(1) = ia(1);     % I1(za) = calculated
 bc_matrix(2,1+n)     = 1; bc_target(2) = 0;         % I2(za) = 0
 bc_matrix(3,1+2*n)   = 1; bc_target(3) = ia(2);     % I3(za) = calculated
 bc_matrix(4,1+3*n)   = 1; bc_target(4) = 0;         % I4(za) = 0;
-bc_matrix(5,1)       = 1; bc_target(5) = 0;         % I1(zb) = 0;
-bc_matrix(6,1+n)     = 1; bc_target(6) = ib(1);     % I2(zb) = calculated;
-bc_matrix(7,1+2*n)   = 1; bc_target(7) = 0;         % I3(zb) = 0;
-bc_matrix(8,1+3*n)   = 1; bc_target(8) = ib(2);     % I4(zb) = calculated;
+bc_matrix(5,n)       = 1; bc_target(5) = 0;         % I1(zb) = 0;
+bc_matrix(6,2*n)     = 1; bc_target(6) = ib(1);     % I2(zb) = calculated;
+bc_matrix(7,3*n)     = 1; bc_target(7) = 0;         % I3(zb) = 0;
+bc_matrix(8,4*n)     = 1; bc_target(8) = ib(2);     % I4(zb) = calculated;
 
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
@@ -284,6 +284,11 @@ for jj=1:length(zvec)
     [~,~,Bz2]=fieldCoil_3D(0,0,z0,c2);
     [~,~,Bz3]=fieldCoil_3D(0,0,z0,c3);
     [~,~,Bz4]=fieldCoil_3D(0,0,z0,c4);
+
+Bz1 = Bz1*1e4;
+Bz2= Bz2*1e4;
+Bz3 = Bz3*1e4;
+Bz4 = Bz4*1e4;
 
     % Z Gradient
     [~,~,Bz1p]=fieldCoil_3D(0,0,z0+dL,c1);
