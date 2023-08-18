@@ -114,10 +114,10 @@ for jj=1:length(zvec)
     Bz(jj,:) = [Bz1 Bz2 Bz3 Bz4];
     Gz(jj,:) = [Gz1 Gz2 Gz3 Gz4];
 
-    curr1 = i1(1) + (i2(1)-i1(1))/(zb-za)*(z0-za);
-    curr2 = i1(2) + (i2(2)-i1(2))/(zb-za)*(z0-za);
-    curr3 = i1(3) + (i2(3)-i1(3))/(zb-za)*(z0-za);
-    curr4 = i1(4) + (i2(4)-i1(4))/(zb-za)*(z0-za);
+    curr1 = i1(1) + (i2(1)-i1(1))/(z2-z1)*(z0-z1);
+    curr2 = i1(2) + (i2(2)-i1(2))/(z2-z1)*(z0-z1);
+    curr3 = i1(3) + (i2(3)-i1(3))/(z2-z1)*(z0-z1);
+    curr4 = i1(4) + (i2(4)-i1(4))/(z2-z1)*(z0-z1);
 
     curr_lin(jj,:) = [curr1 curr2 curr3 curr4];
 
@@ -143,6 +143,7 @@ curr_lin_all = curr_lin(:);
 Gset = G*ones(length(zvec),1);
 Bset = zeros(length(zvec),1);
 
+% Magnetic Field Constraint
 A1 = zeros(length(zvec),4*length(zvec));
 B1 = zeros(length(zvec),1);
 for kk=1:length(zvec)
@@ -153,6 +154,7 @@ for kk=1:length(zvec)
     B1(kk) = 0;
 end
 
+% Field Gradient Constraint
 A2 = zeros(length(zvec),4*length(zvec));
 B2 = zeros(length(zvec),1);
 for kk=1:length(zvec)
@@ -160,16 +162,21 @@ for kk=1:length(zvec)
     A2(kk,kk+length(zvec)) = Gz(kk,2);
     A2(kk,kk+2*length(zvec)) = Gz(kk,3);
     A2(kk,kk+3*length(zvec)) = Gz(kk,4);
-    B2(kk) = 100;
+    B1(kk) = 100;
 end
 
-% bbc = zeros(
-% Abc = zeros(8,4*length(zvec));
-% Abc(1,1) = 1;
+% Boundary Condition Constrain
+Abc = zeros(8,4*length(zvec));
+Bbc = zeros(8,1);
 
-% b = zeros(1,4*length(zvec));
-% b(1) = i1(1);
-
+Abc(1,1) = 1;Bbc(1) = i1(1);                
+Abc(2,1+length(zvec)) = 1;Bbc(2) = i1(2);
+Abc(3,1+2*length(zvec)) = 1;Bbc(3) = i1(3);
+Abc(4,1+3*length(zvec)) = 1;Bbc(4) = i1(4);
+Abc(5,length(zvec)) = 1;Bbc(5) = i2(1);                
+Abc(6,2*length(zvec)) = 1;Bbc(6) = i2(2);                
+Abc(7,3*length(zvec)) = 1;Bbc(7) = i2(3);                
+Abc(8,4*length(zvec)) = 1;Bbc(8) = i2(4);                
 
 
 A = [A1;A2];
@@ -181,6 +188,6 @@ func = @(curr) sum(diff(curr(n1)).^2) + ...
     sum(diff(curr(n3)).^2) + ...
     sum(diff(curr(n4)).^2);
 
-x = fmincon(func,x0,[],[],A,B);
+x = fmincon(func,x0,[],[],A,B)
 % diff(curr(1:n1)).^2+diff(curr(1:n1)).^2
 
