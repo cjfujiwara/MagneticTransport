@@ -39,6 +39,8 @@ zb = z_centers(3);
 zc = z_centers(4);
 zd = z_centers(5);
 z_final = z_centers(5)+z_centers(6);
+
+z_symmetry = [z_init za zb zc zd z_final];
 %% Initialize data vectors
 N = 5e3; % Number of positions to evalulate
 dL  = 1e-4; % Distance separation for calculating the gradient
@@ -66,6 +68,15 @@ end
 B = B*1e4;
 G = G*1e2;
 
+%% Calculate Field and Gradient at symmetry points
+B_bc = zeros(6,6);
+G_bc = zeros(6,6);
+
+for kk=1:length(coils)
+    B_bc(:,kk) = interp1(Z,B(:,kk)',z_symmetry,'spline');
+    G_bc(:,kk) = interp1(Z,G(:,kk)',z_symmetry,'spline');
+end
+
 %% Plot Field And Gradient
 figure(1);
 clf
@@ -87,7 +98,10 @@ xlabel('position (mm)')
 ylabel('gradient @ 1A (G/cm)')
 legend({'12a','12b','13','14','15','16'})
 
-%% Solve Each Zone NEW
+
+%% Zone a to b calculation
+
+
 
 
 %% Zone 1 Solution OLD
