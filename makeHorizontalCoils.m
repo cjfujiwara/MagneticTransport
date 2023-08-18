@@ -8,6 +8,7 @@ c2.ID = 45.7*1e-3;
 c2.OD = 96*1e-3;
 c2.Nrad = 33;
 c2.Nax = 2;
+
 c2.WireDim = [0.73 2.63]*1e-3;
 c2.InnerSeparation = 50*1e-3;
 c2.Position = [0 0]*1e-3;
@@ -20,6 +21,8 @@ c3.ID = 24.8*1e-3;
 c3.OD = 61*1e-3;
 c3.Nrad = 16;
 c3.Nax = 2;
+% c3.Nrad = 1;
+% c3.Nax = 1;
 c3.WireDim = [1.13 2.63]*1e-3;
 c3.InnerSeparation = 63.48*1e-3;
 c3.Position = [53.3 0]*1e-3;
@@ -119,6 +122,7 @@ c10.Nax = 2;
 c10.WireDim = [1.13 2.63]*1e-3;
 c10.InnerSeparation = 63.48*1e-3;
 c10.Position = [305.3 0]*1e-3;
+
 
 %% Assemble Coils
 
