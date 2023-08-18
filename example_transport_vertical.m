@@ -148,7 +148,7 @@ legend({'12a','12b','13','14','15','16'})
 
 %% Zone init to a calculation
 n = 100;                % Points in this zone to evaluate
-z_0a = linspace(z_init,z_init,n);  % Vector of points to calculate
+z_0a = linspace(z_init,za,n);  % Vector of points to calculate
 
 n1 = (1):(n);
 n2 = (1+n):(2*n);
@@ -183,18 +183,18 @@ bc_matrix(1,1)       = 1; bc_target(1) = i0(1);     % I1(za) = calculated
 bc_matrix(2,1+n)     = 1; bc_target(2) = i0(2);     % I2(za) = calculated
 bc_matrix(3,1+2*n)   = 1; bc_target(3) = 0;         % I3(za) = 0
 
-bc_matrix(4,n)       = 1; bc_target(5) = ib(1);     % I1(zb) = 0;
-bc_matrix(5,2*n)     = 1; bc_target(6) = 0;         % I2(zb) = calculated;
-bc_matrix(6,3*n)     = 1; bc_target(7) = ib(2);     % I3(zb) = 0;
+bc_matrix(4,n)       = 1; bc_target(4) = ia(1);     % I1(zb) = 0;
+bc_matrix(5,2*n)     = 1; bc_target(5) = 0;         % I2(zb) = calculated;
+bc_matrix(6,3*n)     = 1; bc_target(6) = ia(2);     % I3(zb) = 0;
 
 % Assemble all constraints
 constraint_matrix = [field_constraint_matrix; gradient_constraint_matrix; bc_matrix];
 constraint_vector = [field_constraint; gradient_constraint; bc_target];
 
 % Initial guess is the simple linear solution
-i1_guess = linspace(i0(1),ib(1),n);
+i1_guess = linspace(i0(1),ia(1),n);
 i2_guess = linspace(i0(2),0,n);
-i3_guess = linspace(0,ib(2),n);
+i3_guess = linspace(0,ia(2),n);
 init_guess = [i1_guess i2_guess i3_guess];
 
 func = @(curr) sum(diff(curr(n1)).^2) + ...
@@ -207,8 +207,8 @@ i1_0a = x(n1);
 i2_0a = x(n2);
 i3_0a = x(n3);
 
-G_0a = i1_0a.*g1 + i2_0a.*g2 + i3_ab.*0a;
-B_0a = i1_0a.*b1 + i2_0a.*b2 + i3_ab.*0a;
+G_0a = i1_0a.*g1 + i2_0a.*g2 + i3_0a.*g3;
+B_0a = i1_0a.*b1 + i2_0a.*b2 + i3_0a.*g3;
 
 %% Plot it
 
