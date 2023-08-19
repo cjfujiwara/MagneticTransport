@@ -11,6 +11,7 @@ x = 1:1:174;
 figure(4)
 clf
 co=get(gca,'colororder');
+subplot(4,1,[1 2])
 plot(x,c1,'-','color',co(1,:),'linewidth',1)
 hold on
 plot(x,c2,'-','color',co(2,:),'linewidth',1)
@@ -21,16 +22,25 @@ plot(x,c6,'-','color',co(6,:),'linewidth',1)
 
 imat = [c1 c2 c3 c4 c5 c6];
 
-
+xlabel('desired position (mm)')
+ylabel('current (A)')
+legend({'12a','12b','13','14','15','16'},'orientation','horizontal');
+xlim([1 174])
+ylim([-60 60]);
 % B = B*1e4;
 % G = G*1e2;
 
-yyaxis right
-set(gca,'ycolor','k')
+subplot(4,1,[3])
+plot(x,g0vec/100,'k-')
+ylim([85 110]);
+xlabel('desired position (mm)')
+ylabel('gradient (G/cm)')
 
-plot(x,g0vec,'k-')
-ylim([0 2e4]);
-
+subplot(4,1,[4])
+plot(x,z0vec*1e3-x','k-')
+ ylim([-6 2]);
+xlabel('desired position (mm)')
+ylabel('\Delta z (mm)')
 %% Calculate Field and Gradient at symmetry points
 
 z0vec = zeros(length(x),1);
