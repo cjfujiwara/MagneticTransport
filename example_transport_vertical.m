@@ -143,7 +143,8 @@ for kk=1:length(coils)
 end
 xlabel('position (mm)')
 ylabel('B(z) @ 1A (G)')
-legend({'12a','12b','13','14','15','16'})
+legend({'12a','12b','13','14','15','16'},'orientation','horizontal','location','northwest')
+xlim([min(Z) max(Z)]*1e3);
 
 subplot(212)
 for kk=1:length(coils)
@@ -152,7 +153,8 @@ for kk=1:length(coils)
 end
 xlabel('position (mm)')
 ylabel('dB/dz @ 1A (G/cm)')
-legend({'12a','12b','13','14','15','16'})
+legend({'12a','12b','13','14','15','16'},'orientation','horizontal','location','southwest')
+xlim([min(Z) max(Z)]*1e3);
 
 %% Zone init to a calculation
 n = 100;                % Points in this zone to evaluate
@@ -636,13 +638,21 @@ zz = [z_0a z_ab z_bc z_cd z_dfinal];
 figure(10);
 clf
 co=get(gca,'colororder');
-plot(zz*1e3,i1,'-','color',co(1,:),'linewidth',1);
+
+plot([1 1]*za*1e3,[-50 60],'k:'); hold on
+plot([1 1]*zb*1e3,[-50 60],'k:'); 
+plot([1 1]*zc*1e3,[-50 60],'k:'); 
+plot([1 1]*zd*1e3,[-50 60],'k:'); 
+
 hold on
-plot(zz*1e3,i2,'-','color',co(2,:),'linewidth',1);
-plot(zz*1e3,i3,'-','color',co(3,:),'linewidth',1);
-plot(zz*1e3,i4,'-','color',co(4,:),'linewidth',1);
-plot(zz*1e3,i5,'-','color',co(5,:),'linewidth',1);
-plot(zz*1e3,i6,'-','color',co(6,:),'linewidth',1);
+
+p1=plot(zz*1e3,i1,'-','color',co(1,:),'linewidth',1);
+hold on
+p2=plot(zz*1e3,i2,'-','color',co(2,:),'linewidth',1);
+p3=plot(zz*1e3,i3,'-','color',co(3,:),'linewidth',1);
+p4=plot(zz*1e3,i4,'-','color',co(4,:),'linewidth',1);
+p5=plot(zz*1e3,i5,'-','color',co(5,:),'linewidth',1);
+p6=plot(zz*1e3,i6,'-','color',co(6,:),'linewidth',1);
 
 Gsolve = interp1(Z,G(:,1),zz).*i1+interp1(Z,G(:,2),zz).*i2 + ...
     interp1(Z,G(:,3),zz).*i3+interp1(Z,G(:,4),zz).*i4 + ...
@@ -652,7 +662,8 @@ Bsolve = interp1(Z,B(:,1),zz).*i1+interp1(Z,B(:,2),zz).*i2 + ...
     interp1(Z,B(:,3),zz).*i3+interp1(Z,B(:,4),zz).*i4 + ...
     interp1(Z,B(:,5),zz).*i5+interp1(Z,B(:,6),zz).*i6;
 
-legend({'12a','12b','13','14','15','16'},'orientation','horizontal',...
+
+legend([p1,p2,p3,p4,p5],{'12a','12b','13','14','15','16'},'orientation','horizontal',...
     'location','southeast');
 
 Gstr = ['G = ' num2str(mean(Gsolve)) '\pm' num2str(std(Gsolve),3) ' G/cm'];
@@ -666,12 +677,16 @@ ylim([-50 60]);
 xlabel('position (mm)');
 ylabel('current (A)');
 
+
+
 text(.01,.99,str,'units','normalized','verticalalignment','top');
 
 % yyaxis right
 % set(gca,'YColor','k');
 % ylabel('Gradient');
 % plot(zz,Gsolve);
+
+
 
 
 %% activate warning
