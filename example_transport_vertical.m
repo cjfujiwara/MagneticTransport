@@ -4,7 +4,7 @@
 coils = makeVerticalCoils;
 warning off;
 
-options = optimoptions(@fmincon,'MaxIterations',3e4,'MaxFunctionEvaluations',5e4);
+options = optimoptions(@fmincon,'MaxIterations',5e4,'MaxFunctionEvaluations',8e4);
 
 %% Establish Symmetry Points
 % During vertical transport there are 6 points of high symmetry. 
@@ -58,6 +58,11 @@ zb = z_centers(3);
 zc = z_centers(4);
 zd = z_centers(5);
 z_final = (z_centers(5)+z_centers(6))*.5;
+
+za = 0.023;
+zb = 0.068;
+zc = .102;
+zd = .153;
 
 z_symmetry = [z_init za zb zc zd z_final];
 %% Initialize data vectors
