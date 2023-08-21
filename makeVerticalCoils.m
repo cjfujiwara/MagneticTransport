@@ -78,7 +78,7 @@ c16.Height = c16.Nax*c16.WireDim(2);
 c16.zbot = c15.zbot + c15.Height + 34.6e-3; % WRONG
 c16.zbot = 191.5e-3; % Yee Thesis. OUtdated
 c16.zbot = 191.5e-3 + 14e-3; % "raise top QP" in ?? year
-
+c16.zbot = c15.zbot + .0701; % Using levitation gradient
 %% Collect all Coils
 coils = [c12a c12b c13 c14 c15 c16];
 
