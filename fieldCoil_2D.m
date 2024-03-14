@@ -1,4 +1,4 @@
-function [Bx,Bz]=fieldCoil2D(x,z,C)
+function [Bx,Bz]=fieldCoil_2D(x,z,C)
 %FIELDCOIL Summary of this function goes here
 %   Detailed explanation goes here
 
