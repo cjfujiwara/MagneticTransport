@@ -1,4 +1,6 @@
 function coils = makeVerticalCoils
+% Coils from from Yee thesis
+
 %% Coil 12a ("Vert1/H10")
 
 c12a = struct;
