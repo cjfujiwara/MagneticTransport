@@ -71,7 +71,7 @@ dL  = 1e-4; % Distance separation for calculating the gradient
 Z = linspace(z_init,z_final,N);
 
 B0 = 0;     % Target field in Gauss
-G0 = 100;     % Target gradient in Gauss/cm
+G0 = 80;     % Target gradient in Gauss/cm
 
 % Vectors for magnetic fields and gradients
 B = zeros(N,6);
