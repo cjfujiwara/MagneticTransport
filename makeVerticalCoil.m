@@ -1,4 +1,13 @@
 function [Call] = makeVerticalCoil(opt)
+% From a structure array which describes the coils from a human
+% perspective, this code creates a vector array which model each coil as a
+% set of simple current loops. 
+%
+% Each coil loop is just
+%
+% [zposition radius current]
+%
+% This code initializes the current to be 1A, but that is modified later.
 
 % Coil radial thickness
 thickness = (opt.OD - opt.ID)/2;

@@ -1,5 +1,36 @@
 function coils = makeVerticalCoils
 % Coils from from Yee thesis
+%
+% This functin creates a structure array where each element is a descriptor
+% for each coil.  These coils are called
+%
+% Coil 12a, Coil 12b, Coil 13, Coil 14, Coil 15, and Coil 16.
+%
+% Coil 12a and Coil 12b are named as such because during horizontal
+% transport they act as a single pair of coils for the final horizontal
+% transport coil pair.
+
+%
+% Coil 12b, Coil 13, and Coil 14 are used with H-bridges to change their
+% polarity.
+%
+% Coil 15 and Coil 16 are the final trapping coils which are used in the
+% quadrupolar trap.  Coil 15 changes polarity but is controlled with a
+% custom set of FETs in order to maintain that Coil 15 and Coil 16 are in
+% series at the end of transport.  This is important from a noise
+% perspective for the quadrupolar trap.
+%
+% Each coil is specified by the number of radial and vertical layers.  
+%
+% ID : The inner diameter
+% OD : The outer diameter
+%
+% Nrad : The number of radial layers
+% Nax : The number of axial layers
+% WireDim : The dimensions of the square wire in meters (width x height)
+% Height : The total thickness of hte coil
+% zbot : THe bottom position of the coil.  zbot = 0 is defined as the
+% atomic location at the end of horizontal transport.
 
 %% Coil 12a ("Vert1/H10")
 
