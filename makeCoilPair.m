@@ -17,7 +17,7 @@ h = opt.WireDim(2);
 R0 = (opt.ID/2) + w/2;
 
 % Z Position of closet coil (assumed to have a pair)
-Z0 = (opt.InnerSeparation/2) + h/2 + opt.Position(2);
+Z0 = (opt.InnerSeparation/2) + h/2;
 
 % Axis Locatio
 X0 = opt.Position(1);

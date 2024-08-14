@@ -1,4 +1,4 @@
-function coil = makePushCoil
+function cpush = makePushCoil
 %{
 The design of the push coil called for windings that had a variable number of radial layers
 (Nrad). In addition to the constraint imposed by the MOT beams, as can be seen in Figure 5.7a,
@@ -22,12 +22,31 @@ cpush = struct;
 cpush.Name = 'Push';
 cpush.Name2 = 'Push';
 cpush.ID = 15*1e-3;
-cpush.OD = 75.6*1e-3; % NOT ACTUALLY THE OD
+cpush.OD = NaN;
 cpush.Nrad = [30 30 30 30 28 28 25 24 11 11 11 11 11 11];
+cpush.Nax = length(cpush.Nrad);
 
 cpush.WireDim = [1.02 2.29]*1e-3;
-cpush.InnerSeparation = 42.5*1e-3; % NOT ACTUALLY THE SEPARATION, UNDEFIND
-cpush.Position = [NaN NaN]*1e-3;
+cpush.Position = -48*1e-3; % separation from front of push to the MOT center
+cpush.InnerSeparation = NaN;
+%% Create Coil Array
+
+w = cpush.WireDim(1);
+h = cpush.WireDim(2);
+
+% inner radius
+R0 = (cpush.ID/2);
+
+Call = zeros(sum(cpush.Nrad),4);
+ii = 1;
+for ax = 1:length(cpush.Nrad)
+    X0 = cpush.Position - (ax-0.5)*h;
+    for rr = 1:cpush.Nrad(ax)
+        C1 = [0 X0 R0+(rr-0.5)*w 1];
+        Call(ii,:) = C1;ii=ii+1;
+    end
+end
+cpush.Coil = Call;
 
 end
 

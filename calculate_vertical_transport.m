@@ -1,3 +1,17 @@
+%% Add to Path
+
+% Display this filename
+disp(repmat('-',1,60));disp(repmat('-',1,60));    
+disp(['Calling ' mfilename '.m']);
+disp(repmat('-',1,60));disp(repmat('-',1,60));    
+
+% Add all subdirectories for this m file
+curpath = fileparts(mfilename('fullpath'));
+addpath(curpath);addpath(genpath(curpath));
+
+a = fileparts(curpath);
+addpath(a);addpath(genpath(a));
+
 %% Construct the coils
 
 % Solve vertical transport in the "easy" regime
@@ -51,7 +65,7 @@ for ii=1:length(coils)
     z_centers(ii) = coils(ii).zbot+coils(ii).Height/2;
 end
 
-% Idenfity High Symmetry Points
+% Idenfity High Symmetry Points : calculate
 z_init = 0;
 za = z_centers(2);
 zb = z_centers(3);
@@ -59,10 +73,13 @@ zc = z_centers(4);
 zd = z_centers(5);
 z_final = (z_centers(5)+z_centers(6))*.5;
 
-za = 0.023;
+% Idenfity High Symmetry Points : auto specify
+z_init = 0; 
+za = 0.023; 
 zb = 0.068;
 zc = 0.102;
 zd = 0.148;
+z_final = (z_centers(5)+z_centers(6))*.5;
 
 z_symmetry = [z_init za zb zc zd z_final];
 %% Initialize data vectors
