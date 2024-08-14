@@ -243,6 +243,8 @@ i3_0a = x(n3);
 G_0a = i1_0a.*g1 + i2_0a.*g2 + i3_0a.*g3;
 B_0a = i1_0a.*b1 + i2_0a.*b2 + i3_0a.*g3;
 
+
+
 %% Plot it
 
 figure(2);

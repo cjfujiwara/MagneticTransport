@@ -24,10 +24,15 @@ cpush.Name2 = 'Push';
 cpush.ID = 15*1e-3;
 cpush.OD = NaN;
 cpush.Nrad = [30 30 30 30 28 28 25 24 11 11 11 11 11 11];
+cpush.Nrad = flip([30 30 30 30 28 28 25 24 11 11 11 11 11 11]);
+
 cpush.Nax = length(cpush.Nrad);
 
 cpush.WireDim = [1.02 2.29]*1e-3;
 cpush.Position = -48*1e-3; % separation from front of push to the MOT center
+
+% cpush.Position = -40*1e-3; % separation from front of push to the MOT center
+
 cpush.InnerSeparation = NaN;
 %% Create Coil Array
 
