@@ -555,7 +555,7 @@ title('Normal Transport');
 
 %% HV Transfer Region
 % 290 to 360 : Coil 10, Coil 11, Coil 11 Extra, Coil 12
-N = 26;
+N = 50;
 X = linspace(x_symmetry(10),x_symmetry(end),N);
 dL = 1e-4;
 
