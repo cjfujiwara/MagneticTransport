@@ -291,19 +291,21 @@ end
 xlim([Xq(1) Xq(end)]*1e3)
 ylabel('current (A)');
 legend(legStr,'fontsize',6,'location','north','numcolumns',5);
+xlabel('position (mm)');
+set(gca,'box','on','linewidth',1,'fontsize',10,'xaxislocation','top');
 
 subplot(4,1,[4]);
 yyaxis left
 plot(Xq*1e3,Gz_out,'color',c(1,:),'linewidth',2);hold on
 ylim([90 110]);
 ylabel('gradient (G/cm)');
-
 yyaxis right
 plot(Xq*1e3,A_out,'color',c(2,:),'linewidth',2)
 ylim([.9 3]);
 ylabel('aspect ratio');
 xlim([Xq(1) Xq(end)]*1e3)
-
+xlabel('position (mm)');
+set(gca,'box','on','linewidth',1,'fontsize',10);
 
 %% Export the Output
 

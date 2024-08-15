@@ -1,17 +1,29 @@
 %% Specify Boundary and Coils
-x0 = 0.325;
-x1 = 0.360;
 
+% Position
+x0 = 0.325;                 % Starting Position
+x1 = 0.360;                 % Ending Position
+n = 200;                    % Number of position points
+xq5 = linspace(x0,x1,n);    % Position Vector
+
+% Aspect Ratios
 alpha0 = 1.707;
 alpha1 = 1;
+A  = linspace(alpha0,alpha1,n);
+
+% Aspect ratio interpolate
+A = interp1(...
+    [x0 0.335 0.345 0.350 0.355 0.360;],...
+    [1.707 1.69 1.57 1.44 1.24 1],...
+    xq5,'pchip');
+
+% Target field gradient
 G0 = 100;
 
+% Coil indeces
 i1 = 11;
 i2 = 12;
 i3 = 13;
-n = 200;
-
-xq5 = linspace(x0,x1,n);
 
 %% Get Field
 
@@ -21,17 +33,6 @@ I_mat_zone_5 = zeros(3,n);
 
 % Field
 B = zeros(1,n);
-
-% Aspect Ratios
-A  = linspace(alpha0,alpha1,n);
-% 
-A = interp1([x0 0.335 0.345 0.350 0.355 0.360;],[1.707 1.69 1.57 1.44 1.24 1],xq5,'pchip');
-% 
-% A = interp1([0  0.01 0.03 0.035],[1 1.6 2.5 2.5],xq,'pchip');
-
-% 
-% x2alpha = @(x) (alpha0-alpha1)/x1^2*(x-x1).^2+alpha1;
-% A = x2alpha(xq);
 
 % Vertical Field Gradient
 Gv  = ones(1,n)*G0;
