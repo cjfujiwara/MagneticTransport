@@ -319,9 +319,9 @@ if doSave
     curpath = fileparts(mfilename('fullpath'));
     outdir = fullfile(curpath,'horizontal_output');       
     saveas(h1,fullfile(outdir,'horizontal_field_profile.png'));
-    saveas(h1,fullfile(outdir,'horizontal_field_profile.fig'));
+    % saveas(h1,fullfile(outdir,'horizontal_field_profile.fig'));
     saveas(ff,fullfile(outdir,'horizontal_current.png'));
-    saveas(ff,fullfile(outdir,'horizontal_current.fig'));
+    % saveas(ff,fullfile(outdir,'horizontal_current.fig'));
 
     save(fullfile(outdir,'horizontal_current'),'X_out','I_out','Gx_out','Gy_out','Gz_out','Bx_out','By_out','Bz_out','A_out');
 end
