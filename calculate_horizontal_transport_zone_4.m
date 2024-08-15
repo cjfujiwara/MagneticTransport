@@ -22,22 +22,10 @@ i2 = 11;
 i3 = 12;
 i4 = 13;
 
-%% Boundary Conditions
-
-% Boundary 1
-I1 = [I_mat_zone_3(:,end);0];
-i1a = I1(i1);
-i2a = I1(i2);
-i3a = I1(i3);
-i4a = I1(i4);
-
-
-
 %% Construct Set Points and Answers
 
 %Field
 B = zeros(1,n);
-
 
 % Vertical Field Gradient
 Gv  = ones(1,n)*G0;
@@ -48,7 +36,6 @@ Gy  = Gx.*A;
 
 % Currents
 imat = zeros(4,n);
-
 
 %% Fields
 
@@ -87,6 +74,12 @@ z_gradient_matrix = [diag(Gz1) diag(Gz2) diag(Gz3) diag(Gz4)];
 
 %% Calculate Boundary Currents
 
+% Boundary 1
+I1 = [I_mat_zone_3(:,end);0];
+i1a = I1(i1);
+i2a = I1(i2);
+i3a = I1(i3);
+i4a = I1(i4);
     
 M = [B2(end) B3(end) B4(end);
     Gz2(end) Gz3(end) Gz4(end);
@@ -99,8 +92,6 @@ i1b = 0;
 i2b = ib(1);
 i3b = ib(2);
 i4b = ib(3);
-
-
 
 %% Construct the boundary condition constraint matrix
 bc_matrix = zeros(8,n*4);

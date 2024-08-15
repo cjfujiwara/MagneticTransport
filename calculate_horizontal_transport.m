@@ -45,6 +45,8 @@
 % Target vertical field gradient [G/cm]
 G0 = 100; 
 
+doSave = 1;
+
 % Construct the coil object
 coils = makeHorizontalCoils;
 warning off;
@@ -61,6 +63,8 @@ disp(repmat('-',1,60));disp(repmat('-',1,60));
 % Add all subdirectories for this m file
 curpath = fileparts(mfilename('fullpath'));
 addpath(curpath);addpath(genpath(curpath));
+
+chdir(curpath);
 
 a = fileparts(curpath);
 addpath(a);addpath(genpath(a));
@@ -212,47 +216,47 @@ I_mat_zone_5_p = [zeros(10,size(I_mat_zone_5,2));I_mat_zone_5];
 
 I_mat_all = [I_mat_zone_1_p I_mat_zone_2_p I_mat_zone_3 I_mat_zone_4_p I_mat_zone_5_p ];
 
-Xq = 0:5e-4:0.360; 
-I_mat = zeros(13,length(Xq));
+X_out = 0:1e-4:0.360; 
+I_out = zeros(13,length(X_out));
 
 for rr=1:13
     x = xq_p;
     y = I_mat_all(rr,:);
     [xu,inds] = unique(x);
     yu = y(inds);
-    I_mat(rr,:)=interp1(xu,yu,Xq,'linear');
+    I_out(rr,:)=interp1(xu,yu,X_out,'linear');
 end
 
 % Recalculate the fields and gradients
 legStr={};dL = 1e-4;
 
-Bx0 = zeros(length(coils),numel(Xq));
-By0 = zeros(length(coils),numel(Xq));
-Bz0 = zeros(length(coils),numel(Xq));
-Gx0 = zeros(length(coils),numel(Xq));
-Gy0 = zeros(length(coils),numel(Xq));
-Gz0 = zeros(length(coils),numel(Xq));
+Bx0 = zeros(length(coils),numel(X_out));
+By0 = zeros(length(coils),numel(X_out));
+Bz0 = zeros(length(coils),numel(X_out));
+Gx0 = zeros(length(coils),numel(X_out));
+Gy0 = zeros(length(coils),numel(X_out));
+Gz0 = zeros(length(coils),numel(X_out));
 
 for kk=1:length(coils)   
     c = coils(kk);
     legStr{kk}=c.Name;
 
     if kk==1
-        [By,Bz,Bx]=fieldCoil_3D(0,0,Xq,c.Coil);        
-        [~,~,Bxp]=fieldCoil_3D(0,0,Xq+dL/2,c.Coil);
-        [~,~,Bxn]=fieldCoil_3D(0,0,Xq-dL/2,c.Coil);        
-        [Byp,~,~]=fieldCoil_3D(dL/2,0,Xq,c.Coil);
-        [Byn,~,~]=fieldCoil_3D(-dL/2,0,Xq,c.Coil);
-        [~,Bzp,~]=fieldCoil_3D(0,dL/2,Xq,c.Coil);
-        [~,Bzn,~]=fieldCoil_3D(0,-dL/2,Xq,c.Coil);
+        [By,Bz,Bx]=fieldCoil_3D(0,0,X_out,c.Coil);        
+        [~,~,Bxp]=fieldCoil_3D(0,0,X_out+dL/2,c.Coil);
+        [~,~,Bxn]=fieldCoil_3D(0,0,X_out-dL/2,c.Coil);        
+        [Byp,~,~]=fieldCoil_3D(dL/2,0,X_out,c.Coil);
+        [Byn,~,~]=fieldCoil_3D(-dL/2,0,X_out,c.Coil);
+        [~,Bzp,~]=fieldCoil_3D(0,dL/2,X_out,c.Coil);
+        [~,Bzn,~]=fieldCoil_3D(0,-dL/2,X_out,c.Coil);
     else
-        [Bx,By,Bz]=fieldCoil_3D(Xq,0,0,c.Coil);    
-        [Bxp,~,~]=fieldCoil_3D(Xq+dL/2,0,0,c.Coil);
-        [Bxn,~,~]=fieldCoil_3D(Xq-dL/2,0,0,c.Coil);        
-        [~,Byp,~]=fieldCoil_3D(Xq,dL/2,0,c.Coil);
-        [~,Byn,~]=fieldCoil_3D(Xq,-dL/2,0,c.Coil);        
-        [~,~,Bzp]=fieldCoil_3D(Xq,0,dL/2,c.Coil);
-        [~,~,Bzn]=fieldCoil_3D(Xq,0,-dL/2,c.Coil);
+        [Bx,By,Bz]=fieldCoil_3D(X_out,0,0,c.Coil);    
+        [Bxp,~,~]=fieldCoil_3D(X_out+dL/2,0,0,c.Coil);
+        [Bxn,~,~]=fieldCoil_3D(X_out-dL/2,0,0,c.Coil);        
+        [~,Byp,~]=fieldCoil_3D(X_out,dL/2,0,c.Coil);
+        [~,Byn,~]=fieldCoil_3D(X_out,-dL/2,0,c.Coil);        
+        [~,~,Bzp]=fieldCoil_3D(X_out,0,dL/2,c.Coil);
+        [~,~,Bzn]=fieldCoil_3D(X_out,0,-dL/2,c.Coil);
     end    
     % Assign Gradient
     Gx0(kk,:) = 100*(Bxp-Bxn)/dL;
@@ -264,12 +268,12 @@ for kk=1:length(coils)
     Bz0(kk,:) = 1e4*Bz;    
 end
 
-Gx_out = sum(Gx0.*I_mat,1);
-Gy_out = sum(Gy0.*I_mat,1);
-Gz_out = sum(Gz0.*I_mat,1);
-Bx_out = sum(Bx0.*I_mat,1);
-By_out = sum(By0.*I_mat,1);
-Bz_out = sum(Bz0.*I_mat,1);
+Gx_out = sum(Gx0.*I_out,1);
+Gy_out = sum(Gy0.*I_out,1);
+Gz_out = sum(Gz0.*I_out,1);
+Bx_out = sum(Bx0.*I_out,1);
+By_out = sum(By0.*I_out,1);
+Bz_out = sum(Bz0.*I_out,1);
 
 A_out = Gy_out./Gx_out;
 
@@ -286,26 +290,38 @@ legStr={};
 for kk=1:13
     legStr{kk}=coils(kk).Name;
 
-plot(Xq*1e3,I_mat(kk,:),'color',co(kk,:),'linewidth',2); hold on
+plot(X_out*1e3,I_out(kk,:),'color',co(kk,:),'linewidth',2); hold on
 end
-xlim([Xq(1) Xq(end)]*1e3)
+xlim([X_out(1) X_out(end)]*1e3)
 ylabel('current (A)');
 legend(legStr,'fontsize',6,'location','north','numcolumns',5);
 xlabel('position (mm)');
 set(gca,'box','on','linewidth',1,'fontsize',10,'xaxislocation','top');
+ylim([-1 100]);
 
 subplot(4,1,[4]);
 yyaxis left
-plot(Xq*1e3,Gz_out,'color',c(1,:),'linewidth',2);hold on
+plot(X_out*1e3,Gz_out,'color',c(1,:),'linewidth',2);hold on
 ylim([90 110]);
 ylabel('gradient (G/cm)');
 yyaxis right
-plot(Xq*1e3,A_out,'color',c(2,:),'linewidth',2)
+plot(X_out*1e3,A_out,'color',c(2,:),'linewidth',2)
 ylim([.9 3]);
 ylabel('aspect ratio');
-xlim([Xq(1) Xq(end)]*1e3)
+xlim([X_out(1) X_out(end)]*1e3)
 xlabel('position (mm)');
 set(gca,'box','on','linewidth',1,'fontsize',10);
 
 %% Export the Output
 
+if doSave
+    % Add all subdirectories for this m file
+    curpath = fileparts(mfilename('fullpath'));
+    outdir = fullfile(curpath,'horizontal_output');       
+    saveas(h1,fullfile(outdir,'horizontal_field_profile.png'));
+    saveas(h1,fullfile(outdir,'horizontal_field_profile.fig'));
+    saveas(ff,fullfile(outdir,'horizontal_current.png'));
+    saveas(ff,fullfile(outdir,'horizontal_current.fig'));
+
+    save(fullfile(outdir,'horizontal_current'),'X_out','I_out','Gx_out','Gy_out','Gz_out','Bx_out','By_out','Bz_out','A_out');
+end

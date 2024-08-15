@@ -1,15 +1,26 @@
 %% Properties
 
-alpha = 1.707;
-G0 = 100;
+% Position Bondaries
 x_symm  = [0.068 0.1015 0.1310 0.1645 0.1940 0.2275 0.257 0.290];
-n = 100;
+n = 100;                    % Number of points in each subzone
+
+% Target aspect ratio
+alpha = 1.707;
+
+% Target Field Gradient
+G0 = 100;
+
+% Starting and ending coil indeces
 ia = 3;
 ib = 9;
-jj = 1;
 
+% Current Matrix
 I_mat_zone_3 = zeros(length(coils),n*(ib-ia+1));
-xq3 = zeros(1,n*(ib-ia+1));
+
+xq3 = zeros(1,n*(ib-ia+1)); % Position vector (to be filled)
+
+%% Iterate over each subzone
+jj = 1;
 
 for ii = ia:ib
     i1 = ii;
