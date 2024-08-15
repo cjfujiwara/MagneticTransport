@@ -1,18 +1,28 @@
 %% Specify Boundary and Coils
-x0 = 0.290;
-x1 = 0.330;
 
+% Position
+x0 = 0.290;                 % Starting Position
+x1 = 0.325;                 % Ending Positin
+n = 200;                    % Number of position points
+xq4 = linspace(x0,x1,n);    % Position Vector
+
+% Aspect Ratio
 alpha0 = 1.707;
 alpha1 = 1.707;
+
+% Aspect Ratios
+A  = linspace(alpha0,alpha1,n);
+
+% Target field gradient
 G0 = 100;
 
+% Coil indeces
 i1 = 10;
 i2 = 11;
 i3 = 12;
 i4 = 13;
-n = 100;
 
-xq = linspace(x0,x1,n);
+%% Boundary Conditions
 
 % Boundary 1
 I1 = [I_mat_zone_3(:,end);0];
@@ -28,9 +38,6 @@ i4a = I1(i4);
 %Field
 B = zeros(1,n);
 
-% Aspect Ratios
-A  = linspace(alpha0,alpha1,n);
-% A = interp1([0.035  0.040 0.064 0.068],[2.5 2.5 1.707 1.707],xq,'pchip');
 
 % Vertical Field Gradient
 Gv  = ones(1,n)*G0;
@@ -51,31 +58,31 @@ z_gradient_constraint = Gv;
 field_constraint = B;
 
 % Fields
-B1 = interp1(X,Bx_all(i1,:),xq,'spline');
-B2 = interp1(X,Bx_all(i2,:),xq,'spline');
-B3 = interp1(X,Bx_all(i3,:),xq,'spline');
-B4 = interp1(X,Bx_all(i4,:),xq,'spline');
+B1 = interp1(X,Bx_all(i1,:),xq4,'spline');
+B2 = interp1(X,Bx_all(i2,:),xq4,'spline');
+B3 = interp1(X,Bx_all(i3,:),xq4,'spline');
+B4 = interp1(X,Bx_all(i4,:),xq4,'spline');
 field_matrix = [diag(B1(:)) diag(B2(:)) diag(B3(:)) diag(B4(:))];
 
 % Horizontal Gradient
-Gx1 = interp1(X,Gx_all(i1,:),xq,'spline');
-Gx2 = interp1(X,Gx_all(i2,:),xq,'spline');
-Gx3 = interp1(X,Gx_all(i3,:),xq,'spline');
-Gx4 = interp1(X,Gx_all(i4,:),xq,'spline');
+Gx1 = interp1(X,Gx_all(i1,:),xq4,'spline');
+Gx2 = interp1(X,Gx_all(i2,:),xq4,'spline');
+Gx3 = interp1(X,Gx_all(i3,:),xq4,'spline');
+Gx4 = interp1(X,Gx_all(i4,:),xq4,'spline');
 x_gradient_matrix = [diag(Gx1) diag(Gx2) diag(Gx3) diag(Gx4)];
 
 % Horizontal Gradient
-Gy1 = interp1(X,Gy_all(i1,:),xq,'spline');
-Gy2 = interp1(X,Gy_all(i2,:),xq,'spline');
-Gy3 = interp1(X,Gy_all(i3,:),xq,'spline');
-Gy4 = interp1(X,Gy_all(i4,:),xq,'spline');
+Gy1 = interp1(X,Gy_all(i1,:),xq4,'spline');
+Gy2 = interp1(X,Gy_all(i2,:),xq4,'spline');
+Gy3 = interp1(X,Gy_all(i3,:),xq4,'spline');
+Gy4 = interp1(X,Gy_all(i4,:),xq4,'spline');
 y_gradient_matrix = [diag(Gy1) diag(Gy2) diag(Gy3) diag(Gy4)];
 
 % Vertical Gradients
-Gz1 = interp1(X,Gz_all(i1,:),xq,'spline');
-Gz2 = interp1(X,Gz_all(i2,:),xq,'spline');
-Gz3 = interp1(X,Gz_all(i3,:),xq,'spline');
-Gz4 = interp1(X,Gz_all(i4,:),xq,'spline');
+Gz1 = interp1(X,Gz_all(i1,:),xq4,'spline');
+Gz2 = interp1(X,Gz_all(i2,:),xq4,'spline');
+Gz3 = interp1(X,Gz_all(i3,:),xq4,'spline');
+Gz4 = interp1(X,Gz_all(i4,:),xq4,'spline');
 z_gradient_matrix = [diag(Gz1) diag(Gz2) diag(Gz3) diag(Gz4)];
 
 %% Calculate Boundary Currents
@@ -167,35 +174,34 @@ clf
 hF.Color='w';
 hF.Position=[10+1050 60 350 850];
 subplot(4,1,[1 2 3]);
-p1=plot(xq*1e3,I_mat_zone_4(1,:),'color',co(i1,:),'linewidth',2);hold on;
-p2=plot(xq*1e3,I_mat_zone_4(2,:),'color',co(i2,:),'linewidth',2);hold on;
-p3=plot(xq*1e3,I_mat_zone_4(3,:),'color',co(i3,:),'linewidth',2);hold on;
-p4=plot(xq*1e3,I_mat_zone_4(4,:),'color',co(i4,:),'linewidth',2);hold on;
+p1=plot(xq4*1e3,I_mat_zone_4(1,:),'color',co(i1,:),'linewidth',2);hold on;
+p2=plot(xq4*1e3,I_mat_zone_4(2,:),'color',co(i2,:),'linewidth',2);hold on;
+p3=plot(xq4*1e3,I_mat_zone_4(3,:),'color',co(i3,:),'linewidth',2);hold on;
+p4=plot(xq4*1e3,I_mat_zone_4(4,:),'color',co(i4,:),'linewidth',2);hold on;
 
 xlabel('position (mm)');
 ylabel('current (A)');
 set(gca,'fontsize',8,'box','on','linewidth',1);
 ylim([0 100]);
 
-xlim([xq(1) xq(end)]*1e3)
+xlim([xq4(1) xq4(end)]*1e3)
 
 
-legend([p1 p2 p3],legStr([i1 i2 i3]),'location','northwest');
+legend([p1 p2 p3 p4],legStr([i1 i2 i3 i4]),'location','northwest');
 
 subplot(4,1,4);
 c = get(gca,'colororder');
 yyaxis left
-plot(xq*1e3,Gv,'color',c(1,:),'linewidth',2);
+plot(xq4*1e3,Gv,'color',c(1,:),'linewidth',2);
 ylim([90 110]);
 ylabel('gradient (G/cm)');
-
-
+xlabel('position (mm)');
 yyaxis right
-plot(xq*1e3,Gy./Gx,'color',c(2,:),'linewidth',2);hold on;
+plot(xq4*1e3,Gy./Gx,'color',c(2,:),'linewidth',2);hold on;
 set(gca,'fontsize',8,'box','on','linewidth',1);
 ylabel('aspect ratio');
 ylim([.9 3]);
-xlim([xq(1) xq(end)]*1e3)
+xlim([xq4(1) xq4(end)]*1e3)
 
 
 

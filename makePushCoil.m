@@ -12,8 +12,6 @@ end we resolved to wrap subcoils with fixed Nrad. The dimensions of the subcoils
 Figure 5.5.
 %}
 
-
-
 % Push coil OD corresponds to the last segment, and P inner separation corresponds to the distance from the first segment to
 % the MOT center.
 
@@ -30,8 +28,6 @@ cpush.Nax = length(cpush.Nrad);
 
 cpush.WireDim = [1.02 2.29]*1e-3;
 cpush.Position = -48*1e-3; % separation from front of push to the MOT center
-
-% cpush.Position = -40*1e-3; % separation from front of push to the MOT center
 
 cpush.InnerSeparation = NaN;
 %% Create Coil Array

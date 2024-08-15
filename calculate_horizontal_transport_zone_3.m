@@ -9,7 +9,8 @@ ib = 9;
 jj = 1;
 
 I_mat_zone_3 = zeros(length(coils),n*(ib-ia+1));
-XQ = zeros(1,n*(ib-ia+1));
+xq3 = zeros(1,n*(ib-ia+1));
+
 for ii = ia:ib
     i1 = ii;
     i2 = ii+1;
@@ -64,7 +65,7 @@ for ii = ia:ib
     I_mat_zone_3(i1,nthis)=imat(1,:);
     I_mat_zone_3(i2,nthis)=imat(2,:);
     I_mat_zone_3(i3,nthis)=imat(3,:);
-    XQ(nthis) = xq;
+    xq3(nthis) = xq;
    
 
     jj = jj+1;
@@ -79,16 +80,13 @@ clear ps
 ps=[];
 subplot(4,1,[1 2 3]);
 for ii = ia:(ib+2)
-    ps(end+1)=plot(XQ*1e3,I_mat_zone_3(ii,:),'color',co(ii,:),'linewidth',2);hold on;
+    ps(end+1)=plot(xq3*1e3,I_mat_zone_3(ii,:),'color',co(ii,:),'linewidth',2);hold on;
 end
 xlabel('position (mm)');
 ylabel('current (A)');
 set(gca,'fontsize',8,'box','on','linewidth',1);
 ylim([0 100]);
-
-xlim([XQ(1) XQ(end)]*1e3);
-
-
+xlim([xq3(1) xq3(end)]*1e3);
 legend(ps,{coils(ia:(ib+2)).Name},'location','northwest');
 
 subplot(4,1,4);
@@ -97,7 +95,7 @@ yyaxis left
 plot(xq*1e3,Gv,'color',c(1,:),'linewidth',2);
 ylim([90 110]);
 ylabel('gradient (G/cm)');
-
+xlabel('position (mm)');
 yyaxis right
 plot(xq*1e3,Gy./Gx,'color',c(2,:),'linewidth',2);hold on;
 set(gca,'fontsize',8,'box','on','linewidth',1);
