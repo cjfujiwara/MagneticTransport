@@ -159,7 +159,7 @@ c11_extra.Nrad = 22;
 c11_extra.Nax = 2;
 c11_extra.WireDim = [1.02 2.29]*1e-3;
 c11_extra.InnerSeparation = 87*1e-3;
-c11_extra.Position = 318*1e-3; % dave says 318, but I disagree
+c11_extra.Position = 318*1e-3; 
 
 %% Coil 12
 

@@ -208,6 +208,9 @@ calculate_horizontal_transport_zone_4;
 % object
 
 xq_p = [xq1 xq2 xq3 xq4 xq5];
+
+zone_edges = [xq1(end) xq2(end) xq3(end) xq4(end)];
+
 I_mat_zone_1_p = [I_mat_zone_1; zeros(10,size(I_mat_zone_1,2))];
 I_mat_zone_2_p = [I_mat_zone_2; zeros(9,size(I_mat_zone_2,2))];
 
@@ -287,6 +290,11 @@ clf
 c= get(gca,'colororder');
 subplot(4,1,[1 2 3]);
 legStr={};
+ps=[];
+for ii=1:4
+    plot(1e3*zone_edges(ii)*[1 1],[0 100],'k-');hold on
+end
+
 for kk=1:13
     legStr{kk}=coils(kk).Name;
 
@@ -294,10 +302,12 @@ plot(X_out*1e3,I_out(kk,:),'color',co(kk,:),'linewidth',2); hold on
 end
 xlim([X_out(1) X_out(end)]*1e3)
 ylabel('current (A)');
-legend(legStr,'fontsize',6,'location','north','numcolumns',5);
+legend(ps,legStr,'fontsize',6,'location','north','numcolumns',5);
 xlabel('position (mm)');
 set(gca,'box','on','linewidth',1,'fontsize',10,'xaxislocation','top');
 ylim([-1 100]);
+
+
 
 subplot(4,1,[4]);
 yyaxis left
