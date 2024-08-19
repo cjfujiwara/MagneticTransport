@@ -1,5 +1,6 @@
 # MagneticTransport
 Author : CJ Fujiwara
+
 This repository is a set of MATLAB code designed to calculate the magnetic transport stage for the ultracold atom experiment at the Univeristy of Toronto in the group of Joseph Thywissen.  The transport is divided into a horizontal transport and a vertical transport stage.  The two stages are requires different current traces as vertical transport respects the symmetry of a electromagnet coil while horizontal transport does not.
 
 ## References
