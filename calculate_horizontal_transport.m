@@ -307,8 +307,6 @@ xlabel('position (mm)');
 set(gca,'box','on','linewidth',1,'fontsize',10,'xaxislocation','top');
 ylim([-1 100]);
 
-
-
 subplot(4,1,[4]);
 yyaxis left
 plot(X_out*1e3,Gz_out,'color',c(1,:),'linewidth',2);hold on

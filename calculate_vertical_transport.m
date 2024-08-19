@@ -154,29 +154,32 @@ ifinal=A\[B0; G0];
 
 
 %% Plot Field And Gradient
-figure(1);
+fig_field_profile_v=figure(100);
+fig_field_profile_v.Color='w';
+fig_field_profile_v.Position = [10 60 600 400];
 clf
 co=get(gca,'colororder');
 
 subplot(211)
 for kk=1:length(coils)
-    plot(Z*1e3,B(:,kk),'-','linewidth',1,'color',co(kk,:));
+    plot(Z*1e3,B(:,kk),'-','linewidth',2,'color',co(kk,:));
     hold on
 end
 xlabel('position (mm)')
 ylabel('B(z) @ 1A (G)')
 legend({'12a','12b','13','14','15','16'},'orientation','horizontal','location','northwest')
 xlim([min(Z) max(Z)]*1e3);
-
+set(gca,'box','on','linewidth',1,'fontsize',10)
 subplot(212)
 for kk=1:length(coils)
-    plot(Z*1e3,G(:,kk),'-','linewidth',1,'color',co(kk,:));
+    plot(Z*1e3,G(:,kk),'-','linewidth',2,'color',co(kk,:));
     hold on
 end
 xlabel('position (mm)')
 ylabel('dB/dz @ 1A (G/cm)')
 legend({'12a','12b','13','14','15','16'},'orientation','horizontal','location','southwest')
 xlim([min(Z) max(Z)]*1e3);
+set(gca,'box','on','linewidth',1,'fontsize',10)
 
 %% Zone init to a calculation
 n = 100;                % Points in this zone to evaluate
@@ -658,29 +661,29 @@ i5 = [zeros(1,length(z_0a)) zeros(1,length(z_ab)) i5_bc i5_cd i5_dfinal];
 i6 = [zeros(1,length(z_0a)) zeros(1,length(z_ab)) zeros(1,length(z_bc)) i6_cd i6_dfinal];
 zz = [z_0a z_ab z_bc z_cd z_dfinal];
 
-% if doSave 
-    save('transport_calcs.mat','i1','i2','i3','i4','i5','i6','zz','coils')
-% end
+
 %%
 
-figure(10);
+ffv=figure(101);
 clf
+ffv.Position=[50 200 900 450];
+ffv.Color='w';
 co=get(gca,'colororder');
 
-plot([1 1]*za*1e3,[-50 60],'k:'); hold on
-plot([1 1]*zb*1e3,[-50 60],'k:'); 
-plot([1 1]*zc*1e3,[-50 60],'k:'); 
-plot([1 1]*zd*1e3,[-50 60],'k:'); 
+plot([1 1]*za*1e3,[-50 60],'k-'); hold on
+plot([1 1]*zb*1e3,[-50 60],'k-'); 
+plot([1 1]*zc*1e3,[-50 60],'k-'); 
+plot([1 1]*zd*1e3,[-50 60],'k-'); 
 
 hold on
 
-p1=plot(zz*1e3,i1,'-','color',co(1,:),'linewidth',1);
+p1=plot(zz*1e3,i1,'-','color',co(1,:),'linewidth',2);
 hold on
-p2=plot(zz*1e3,i2,'-','color',co(2,:),'linewidth',1);
-p3=plot(zz*1e3,i3,'-','color',co(3,:),'linewidth',1);
-p4=plot(zz*1e3,i4,'-','color',co(4,:),'linewidth',1);
-p5=plot(zz*1e3,i5,'-','color',co(5,:),'linewidth',1);
-p6=plot(zz*1e3,i6,'-','color',co(6,:),'linewidth',1);
+p2=plot(zz*1e3,i2,'-','color',co(2,:),'linewidth',2);
+p3=plot(zz*1e3,i3,'-','color',co(3,:),'linewidth',2);
+p4=plot(zz*1e3,i4,'-','color',co(4,:),'linewidth',2);
+p5=plot(zz*1e3,i5,'-','color',co(5,:),'linewidth',2);
+p6=plot(zz*1e3,i6,'-','color',co(6,:),'linewidth',2);
 
 Gsolve = interp1(Z,G(:,1),zz).*i1+interp1(Z,G(:,2),zz).*i2 + ...
     interp1(Z,G(:,3),zz).*i3+interp1(Z,G(:,4),zz).*i4 + ...
@@ -695,25 +698,28 @@ legend([p1,p2,p3,p4,p5],{'12a','12b','13','14','15','16'},'orientation','horizon
     'location','southeast');
 
 Gstr = ['G = ' num2str(mean(Gsolve)) '\pm' num2str(std(Gsolve),3) ' G/cm'];
-
 Bstr = ['\DeltaB < ' num2str(range(Bsolve)) ' G'];
 
 str = [Gstr newline Bstr];
-% i1 = [i1_0a i1_ab]
 xlim([0 max(zz)*1e3]);
 ylim([-50 60]);
 xlabel('position (mm)');
 ylabel('current (A)');
-
-
-
 text(.01,.99,str,'units','normalized','verticalalignment','top');
 
-% yyaxis right
-% set(gca,'YColor','k');
-% ylabel('Gradient');
-% plot(zz,Gsolve);
 
+set(gca,'box','on','linewidth',1,'fontsize',10)
+%%
+doSave = 1;
+if doSave
+    % Add all subdirectories for this m file
+    outdir = fullfile(curpath,'vertical_output');       
+    saveas(fig_field_profile_v,...
+        fullfile(outdir,'vertical_field_profile.png'));
+    saveas(ffv,fullfile(outdir,'vertical_current.png'));    
+    save(fullfile(outdir,'vertical_current.mat'),...
+        'i1','i2','i3','i4','i5','i6','zz','coils') 
+end
 
 
 
