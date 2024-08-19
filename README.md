@@ -6,15 +6,11 @@ This repository is a set of MATLAB code designed to calculate the magnetic trans
 ## References
 The primary references for this calculation are :
 
-Michael Yee. "Magnetic Trapping and Transport of Ultracold Atoms". 2009.
-
-David McKay. "Quantum Simulation in Strongly Correlated Optical Lattices". 2012
-
-Dylan Jervis. "A Fermi Gas Microcope Apparatus". 2014
-
-https://tiggerntatie.github.io/emagnet/offaxis/iloopoffaxis.htm
-
-https://www.mathworks.com/help/optim/ug/fmincon.html
+Michael Yee. "Magnetic Trapping and Transport of Ultracold Atoms". 2009.  
+David McKay. "Quantum Simulation in Strongly Correlated Optical Lattices". 2012  
+Dylan Jervis. "A Fermi Gas Microcope Apparatus". 2014  
+https://tiggerntatie.github.io/emagnet/offaxis/iloopoffaxis.htm  
+https://www.mathworks.com/help/optim/ug/fmincon.html  
 
 ## Notes
 The physics of magnetic transport is not discussed here, and this repository directs you to the relevant references.
