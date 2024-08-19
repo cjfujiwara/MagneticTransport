@@ -11,7 +11,21 @@ However, when winding the coils, we found that the coil would not hold its posit
 end we resolved to wrap subcoils with fixed Nrad. The dimensions of the subcoils are shown in
 Figure 5.5.
 %}
-
+% Coils from from Yee thesis
+%
+% This functin creates a structure which describes the push coil
+%
+% This coil is different from the rest of horizontal transport in two ways:
+%   (1) : Variable radius layers
+%   (2) : Field is made horizontally
+%
+% To handle (1), the number of radial turns is made into an array which
+% each index represent a different axial layer and whose value is the
+% number of radial turns.
+%
+% To handle (2), we treat the coil as if it made a field in the Z
+% direction.  The calculation code switches the X and Z direction to make
+% the transverse field.
 % Push coil OD corresponds to the last segment, and P inner separation corresponds to the distance from the first segment to
 % the MOT center.
 
@@ -27,7 +41,7 @@ cpush.Nrad = flip([30 30 30 30 28 28 25 24 11 11 11 11 11 11]);
 cpush.Nax = length(cpush.Nrad);
 
 cpush.WireDim = [1.02 2.29]*1e-3;
-cpush.Position = -48*1e-3; % separation from front of push to the MOT center
+cpush.Position = -48*1e-3; % separation from front of push to the MOT center closest approach
 
 cpush.InnerSeparation = NaN;
 %% Create Coil Array

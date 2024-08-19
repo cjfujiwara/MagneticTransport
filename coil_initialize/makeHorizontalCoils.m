@@ -5,11 +5,15 @@ function coils_out = makeHorizontalCoils
 % for each coil.  These coils are called
 %
 % PUSH, MOT, Coil 3, Coil 4, Coil 5, Coil 6, Coil 7, Coil 8, Coil 9,
-% Coil 10
+% Coil 10, and Coil 11
 %
 % Coil 12a and Coil 12b are named as such because during horizontal
 % transport they act as a single pair of coils for the final horizontal
 % transport coil pair.
+%
+% Coil 11 Extra is an additional coil that was installed by DM/DJ before I
+% joined the group.  The properties of the coil were determined by a
+% mathematica notebook in Dave's files.
 
 %% Coil 1 ("Push")
 
